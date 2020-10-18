@@ -1,0 +1,44 @@
+name: CI
+
+on: [push]
+
+jobs:
+
+  webapp:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v1
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.cache/coursier/v1
+          key: ${{ runner.os }}-coursier-${{ hashFiles('**/build.sbt') }}
+
+      - uses: actions/cache@v1
+        id: npm-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package.json') }}
+
+      - uses: olafurpg/setup-scala@v7
+        with:
+          java-version: graalvm@
+
+      - name: Install npm dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Compile
+        run: sbt fullLinkJS
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy webapp
+        uses: peaceiris/actions-gh-pages@v3.6.4
+        with:
+          deploy_key: ${{ secrets.GH_PAGES_DEPLOY_KEY }}
+          external_repository: TorrentDam/TorrentDam.github.io
+          publish_branch: gh-pages
+          publish_dir: target/webpack/dist
