@@ -1,4 +1,6 @@
-enablePlugins(ScalaJSPlugin)
+enablePlugins(
+  ScalablyTypedConverterExternalNpmPlugin,
+)
 
 name := "webapp"
 scalaVersion := "2.13.2"
@@ -16,6 +18,9 @@ scalaJSLinkerConfig ~= (_
   .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
   .withModuleKind(ModuleKind.ESModule)
 )
+
+externalNpm := baseDirectory.value
+stFlavour := Flavour.Slinky
 
 libraryDependencies ++= Seq(
   "com.github.torrentdam" %%% "protocol" % Versions.protocol,
