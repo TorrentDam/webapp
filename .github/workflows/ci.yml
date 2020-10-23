@@ -11,10 +11,12 @@ jobs:
       - uses: actions/checkout@v1
 
       - uses: actions/cache@v1
-        id: coursier-cache
+        id: sbt-cache
         with:
-          path: ~/.cache/coursier/v1
-          key: ${{ runner.os }}-coursier-${{ hashFiles('**/build.sbt') }}
+          path: |
+            ~/.sbt
+            ~/.cache/coursier/v1
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
 
       - uses: actions/cache@v1
         id: scalablytyped-cache
