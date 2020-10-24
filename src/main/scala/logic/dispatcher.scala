@@ -2,7 +2,6 @@
 package logic
 
 import logic.model.Root
-import monix.reactive.subjects.Var
 
 trait Dispatcher {
   def apply(action: Action): Unit
@@ -10,6 +9,6 @@ trait Dispatcher {
 
 object Dispatcher {
 
-  def apply(handler: Handler, state: Var[Root]): Dispatcher =
-    action => state := handler(state(), action)
+  def apply(handler: Handler, state: Store[Root]): Dispatcher =
+    action => state.update(handler(state.current, action))
 }

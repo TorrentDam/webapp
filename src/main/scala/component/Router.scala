@@ -3,12 +3,8 @@ package component
 import java.net.URLDecoder
 
 import com.github.lavrov.bittorrent.InfoHash
-import monix.reactive.subjects.Var
-import monix.execution.Scheduler.Implicits.global
-import slinky.core.facade.{Hooks, ReactElement}
+import logic.Store
 import org.scalajs.dom.window
-import slinky.core.FunctionalComponent
-import slinky.web.html._
 
 trait Router {
   def current: Router.Route
@@ -21,17 +17,17 @@ object Router {
       val str = window.location.hash.drop(1)
       Route.fromString(str)
     }
-    val routeVar = Var[Route](parseHash.getOrElse(Route.Root))
+    val routeVar = new Store[Route](parseHash.getOrElse(Route.Root))
     window.onhashchange = { _ =>
       val route = parseHash.getOrElse(Route.Root)
-      routeVar := route
+      routeVar.update(route)
     }
     new Router {
-      def current: Route = routeVar()
+      def current: Route = routeVar.current
       def navigate(route: Route): Unit =
         window.location.hash = Route.toString(route)
       def onNavigate(callback: Route => Unit): Unit =
-        routeVar.foreach(callback)
+        routeVar.subscribe(callback)
     }
   }
 

@@ -1,7 +1,6 @@
 package logic
 
 import logic.model._
-import monix.reactive.Observable
 import component.Router.Route
 
 object WindowTitle {

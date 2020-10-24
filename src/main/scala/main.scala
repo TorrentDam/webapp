@@ -2,18 +2,15 @@ import scalajs.js.annotation.JSExportTopLevel
 import org.scalajs.dom
 import slinky.web.ReactDOM
 import cats.implicits._
-import cats.effect.{ContextShift, ExitCode, IO, Timer}
+import cats.effect.{ContextShift, IO, Timer}
 import cats.effect.concurrent.MVar
 import com.github.lavrov.bittorrent.app.protocol.Command
 import component.{App, Router}
-import logic.{Action, Dispatcher, Handler}
+import logic.{Action, Dispatcher, Handler, Store, WindowTitle}
 import logic.model.Root
-import monix.reactive.subjects.Var
-import monix.execution.Scheduler.Implicits.global
 
 import scala.concurrent.ExecutionContext
 import component.Connect
-import logic.WindowTitle
 import slinky.core.FunctionalComponent
 import slinky.core.facade.Hooks
 
@@ -39,7 +36,7 @@ object Main {
   def initialize = {
     for {
       out <- MVar.empty[IO, String]
-      model <- IO { Var(Root.initial) }
+      model <- IO { new Store(Root.initial) }
       dispatcher <- IO {
         def send(command: Command): Unit = {
           val str = upickle.default.write(command)
@@ -71,7 +68,11 @@ object Main {
         dispatcher(Action.Navigate(router.current))
         router.onNavigate(route => dispatcher(Action.Navigate(route)))
       }
-      _ <- model.map(WindowTitle.fromModel).foreachL { dom.document.title = _ }.to[IO].start
+      _ <- IO {
+        model.subscribe { model =>
+          dom.document.title = WindowTitle.fromModel(model)
+        }
+      }
     } yield {
       (model, router, dispatcher)
     }
