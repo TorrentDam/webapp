@@ -32,7 +32,7 @@ object Main {
   }
 
   val RootComponent = FunctionalComponent[Unit] { _ =>
-    val ((model, router, dispatcher), _) = Hooks.useState { () => initialize.unsafeRunSync }
+    val (model, router, dispatcher) = Hooks.useMemo(() => initialize.unsafeRunSync, List.empty)
     Connect(model)(model => App(router, model, dispatcher))
   }
 
