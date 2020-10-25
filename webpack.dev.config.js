@@ -39,8 +39,8 @@ module.exports = {
         config: {
           serverUrl: 'bittorrent-server.herokuapp.com',
           useEncryption: true
-//           serverUrl: 'localhost:9999',
-//           useEncryption: false
+//          serverUrl: 'localhost:9999',
+//          useEncryption: false
         }
       }
     })

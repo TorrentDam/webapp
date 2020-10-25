@@ -1,9 +1,11 @@
 import org.scalajs.dom.raw.WebSocket
 import org.scalajs.dom.console
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import cats.syntax.all._
-import cats.effect.Timer
-import cats.effect.concurrent.{Deferred, MVar}
+import cats.effect.Deferred
+import cats.effect.kernel.Temporal
+import cats.effect.std.Queue
+import cats.effect.unsafe.IORuntime
 
 import scala.concurrent.duration._
 
@@ -14,9 +16,9 @@ case class Socket(
 )
 object Socket {
 
-  def connect(url: String)(implicit cs: ContextShift[IO], timer: Timer[IO]): IO[Socket] =
+  def connect(url: String)(implicit runtime: IORuntime): IO[Socket] =
     for {
-      websocket <- IO.async[WebSocket] { cont =>
+      websocket <- IO.async_[WebSocket] { cont =>
         console.info(s"Connecting to $url")
         val websocket = new WebSocket(url)
         websocket.onopen = { _ =>
@@ -31,9 +33,9 @@ object Socket {
       onClose <- Deferred[IO, Option[ConnectionInterrupted]]
       onDisconnected = { () =>
         console.info(s"Disconnected from $url")
-        onClose.complete(ConnectionInterrupted().some).unsafeRunSync()
+        onClose.complete(ConnectionInterrupted().some).unsafeRunAndForget()
       }
-      channel <- MVar.empty[IO, String]
+      channel <- Queue.unbounded[IO, String]
       _ <- IO.delay {
         websocket.onclose = (_) => onDisconnected()
         websocket.onerror = (_) => onDisconnected()
@@ -42,11 +44,11 @@ object Socket {
             case "pong" =>
               ()
             case msg =>
-              channel.put(msg).unsafeRunSync()
+              channel.tryOffer(msg).unsafeRunAndForget()
           }
         }
       }
-      pingLoop: IO[Unit] = (IO { websocket.send("ping") } >> IO.sleep(10.seconds)).foreverM
+      pingLoop = (IO { websocket.send("ping") } >> IO.sleep(10.seconds)).foreverM[Unit]
       _ <- IO.race(pingLoop, onClose.get).start
     } yield Socket(
       send = data => IO { websocket.send(data) },
@@ -68,9 +70,9 @@ object ReconnectingSocket {
     url: String,
     service: String => IO[Unit],
     onStatusChanged: Boolean => IO[Unit]
-  )(implicit cs: ContextShift[IO], timer: Timer[IO]): IO[ReconnectingSocket] = {
+  )(implicit runtime: IORuntime): IO[ReconnectingSocket] = {
     for {
-      out <- MVar.empty[IO, String]
+      out <- Queue.unbounded[IO, String]
       doConnect = connectWithRetries(url).flatMap { socket =>
         for {
           _ <- onStatusChanged(true)
@@ -83,15 +85,15 @@ object ReconnectingSocket {
       }
       continuallyConnect = doConnect.foreverM
       _ <- continuallyConnect.start
-    } yield ReconnectingSocket(out.put)
+    } yield ReconnectingSocket(out.offer)
   }
 
   private def connectWithRetries(
     url: String
-  )(implicit cs: ContextShift[IO], timer: Timer[IO]): IO[Socket] = {
+  )(implicit runtime: IORuntime): IO[Socket] = {
     Socket.connect(url).handleErrorWith {
       case Socket.ConnectionError() =>
-        timer.sleep(10.seconds) >> connectWithRetries(url)
+        IO.sleep(10.seconds) >> connectWithRetries(url)
     }
   }
 }

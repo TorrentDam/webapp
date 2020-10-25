@@ -1,46 +1,53 @@
-import scalajs.js.annotation.JSExportTopLevel
 import org.scalajs.dom
 import slinky.web.ReactDOM
 import cats.implicits._
-import cats.effect.{ContextShift, IO, Timer}
-import cats.effect.concurrent.MVar
+import cats.effect.{ExitCode, IO, IOApp, SyncIO}
+import cats.effect.std.Queue
+import cats.effect.unsafe.IORuntime
 import com.github.lavrov.bittorrent.app.protocol.Command
 import component.{App, Router}
 import logic.{Action, Dispatcher, Handler, Store, WindowTitle}
 import logic.model.Root
-
-import scala.concurrent.ExecutionContext
 import component.Connect
 import slinky.core.FunctionalComponent
 import slinky.core.facade.Hooks
 
+import scala.scalajs.js.annotation.JSExportTopLevel
+
 object Main {
 
-  implicit val executionContext: ExecutionContext = ExecutionContext.global
-  implicit val contextShift: ContextShift[IO] = IO.contextShift(executionContext)
-  implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
+  @inline
+  implicit def runtime: IORuntime = IORuntime.global
 
   @JSExportTopLevel("main")
   def main(): Unit = {
-    ReactDOM.render(
-      RootComponent(),
-      dom.document.getElementById("root")
-    )
+    initialize.map {
+      case (model, router, dispatcher) =>
+        ReactDOM.render(
+          Connect(model)(model => App(router, model, dispatcher)),
+          dom.document.getElementById("root")
+        )
+    }
+      .unsafeRunAndForget()
+//    ReactDOM.render(
+//      RootComponent(),
+//      dom.document.getElementById("root")
+//    )
   }
 
   val RootComponent = FunctionalComponent[Unit] { _ =>
-    val (model, router, dispatcher) = Hooks.useMemo(() => initialize.unsafeRunSync, List.empty)
+    val (model, router, dispatcher) = Hooks.useMemo(() => initialize.unsafeToFuture().value.get.get, List.empty)
     Connect(model)(model => App(router, model, dispatcher))
   }
 
   def initialize = {
     for {
-      out <- MVar.empty[IO, String]
+      out <- Queue.unbounded[IO, String]
       model <- IO { new Store(Root.initial) }
       dispatcher <- IO {
         def send(command: Command): Unit = {
           val str = upickle.default.write(command)
-          out.put(str).unsafeRunAsyncAndForget()
+          out.offer(str).unsafeRunAndForget()
         }
         lazy val dispatcher: Dispatcher = {
           val handler = Handler(send)
