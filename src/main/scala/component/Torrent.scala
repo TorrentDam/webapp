@@ -1,7 +1,7 @@
 package component
 
 import component.material_ui.core.{Divider, ListItem, ListItemText, Toolbar, Typography, List => MUIList}
-import logic.model.{Metadata, Torrent => TorrentModel}
+import logic.State
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 import slinky.core.facade.ReactElement
@@ -14,24 +14,26 @@ import scala.math.Ordering.Implicits._
 
 @react
 object Torrent {
-  case class Props(router: Router, model: TorrentModel, metadata: Metadata)
+  case class Props(torrent: State.Torrent, metadata: State.Metadata)
 
   val component = FunctionalComponent[Props] { props =>
-    def videoStreamUrl(index: Int) = environment.httpUrl(s"/torrent/${props.model.infoHash.toString}/data/$index")
+
     def handlePlayClick(index: Int): js.Function0[Unit] =
-      () => props.router.navigate(Router.Route.File(index, Router.Route.Torrent(props.model.infoHash)))
+      () => Navigate(Routes.torrentFile(props.torrent.infoHash, index))
 
     div(
       Toolbar(
         Typography(color = "textSecondary", variant = "h5")(props.metadata.name)
       ),
       Divider(),
-      renderList(props.metadata, props.model.availability, handlePlayClick)
+      Connect(props.torrent.stats)( stats =>
+        renderList(props.metadata, stats.availability, handlePlayClick)
+      )
     )
   }
 
   private def renderList(
-    metadata: Metadata,
+    metadata: State.Metadata,
     availability: List[Double],
     handleClick: Int => () => Unit
   ): ReactElement =

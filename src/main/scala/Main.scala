@@ -1,16 +1,13 @@
 import org.scalajs.dom
 import slinky.web.ReactDOM
 import cats.implicits._
-import cats.effect.{ExitCode, IO, IOApp, SyncIO}
+import cats.effect.IO
 import cats.effect.std.Queue
 import cats.effect.unsafe.IORuntime
 import com.github.lavrov.bittorrent.app.protocol.Command
-import component.{App, Router}
-import logic.{Action, Dispatcher, Handler, Store, WindowTitle}
-import logic.model.Root
-import component.Connect
-import slinky.core.FunctionalComponent
-import slinky.core.facade.Hooks
+import component.App
+import logic.{Action, Dispatcher, Handler, Store, State}
+import component.{Connect, Router}
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 
@@ -21,29 +18,21 @@ object Main {
 
   @JSExportTopLevel("main")
   def main(): Unit = {
-    initialize.map {
-      case (model, router, dispatcher) =>
-        ReactDOM.render(
-          Connect(model)(model => App(router, model, dispatcher)),
-          dom.document.getElementById("root")
-        )
-    }
+    initialize
+      .map {
+        case (model, dispatcher) =>
+          ReactDOM.render(
+            Router(Connect(model)(model => App(model, dispatcher))),
+            dom.document.getElementById("root")
+          )
+      }
       .unsafeRunAndForget()
-//    ReactDOM.render(
-//      RootComponent(),
-//      dom.document.getElementById("root")
-//    )
-  }
-
-  val RootComponent = FunctionalComponent[Unit] { _ =>
-    val (model, router, dispatcher) = Hooks.useMemo(() => initialize.unsafeToFuture().value.get.get, List.empty)
-    Connect(model)(model => App(router, model, dispatcher))
   }
 
   def initialize = {
     for {
       out <- Queue.unbounded[IO, String]
-      model <- IO { new Store(Root.initial) }
+      model <- IO { new Store(State.initial) }
       dispatcher <- IO {
         def send(command: Command): Unit = {
           val str = upickle.default.write(command)
@@ -70,18 +59,8 @@ object Main {
           }
           .foreverM
           .start
-      router <- IO { Router() }
-      _ <- IO {
-        dispatcher(Action.Navigate(router.current))
-        router.onNavigate(route => dispatcher(Action.Navigate(route)))
-      }
-      _ <- IO {
-        model.subscribe { model =>
-          dom.document.title = WindowTitle.fromModel(model)
-        }
-      }
     } yield {
-      (model, router, dispatcher)
+      (model, dispatcher)
     }
   }
 

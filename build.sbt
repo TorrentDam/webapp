@@ -28,6 +28,7 @@ libraryDependencies ++= Seq(
   "org.typelevel" %%% "cats-effect" % Versions.`cats-effect`,
   "org.scodec" %%% "scodec-bits" % Versions.`scodec-bits`,
   "org.typelevel" %%% "squants" % Versions.squants,
+  "tech.sparse" %%% "trail" % Versions.trail,
 )
 
 resolvers += Resolver.bintrayRepo("lavrov", "maven")
@@ -38,4 +39,5 @@ lazy val Versions = new {
   val `scodec-bits` = "1.1.14"
   val slinky = "0.6.5"
   val squants = "1.6.0"
+  val trail = "0.3.0"
 }

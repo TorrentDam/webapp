@@ -1,7 +1,6 @@
 package component
 
 import com.github.lavrov.bittorrent.InfoHash
-import component.Router.Route
 import component.material_ui.core.{List, ListItem, ListItemText, ListSubheader, Typography}
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
@@ -11,13 +10,11 @@ import slinky.web.html._
 @react
 object TorrentList {
 
-  case class Props(title: String, items: List[(InfoHash, String)], router: Router)
+  case class Props(title: String, items: List[(InfoHash, String)])
 
   val component = FunctionalComponent[Props] { props =>
-    def handleClick(infoHash: InfoHash) =
-      () => {
-        props.router.navigate(Route.Torrent(infoHash))
-      }
+
+    def handleClick(infoHash: InfoHash) = () => Navigate(Routes.torrent(infoHash))
 
     List(subheader = ListSubheader(props.title): ReactElement)(
       for {

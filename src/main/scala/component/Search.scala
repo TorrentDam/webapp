@@ -2,23 +2,22 @@ package component
 
 import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.Event.SearchResults
-import component.Router.Route
-import logic.Dispatcher
-import logic.model.{Discovered, Root}
+import logic.{Action, Dispatcher, State}
 import material_ui.core._
 import material_ui.icons
 import material_ui.styles.makeStyles
 import org.scalajs.dom.Event
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
-import slinky.core.facade.{Hooks, ReactElement}
+import slinky.core.facade.{Hooks, React, ReactElement}
 import slinky.web.html._
 
 import scala.scalajs.js.Dynamic.{literal => obj}
 
 @react
 object Search {
-  case class Props(model: Option[Root.Search], discovered: Option[Discovered], router: Router, dispatcher: Dispatcher)
+
+  case class Props(query: String, model: Option[State.Search], discovered: Option[State.Discovered], dispatcher: Dispatcher)
 
   private val useStyles = makeStyles(theme =>
     obj(
@@ -45,8 +44,14 @@ object Search {
 
   val component = FunctionalComponent[Props] { props =>
     val classes = useStyles()
+    Hooks.useEffect(() =>
+      if (!props.model.exists(_.query == props.query))
+        props.dispatcher(Action.Search(props.query))
+    )
     div(
-      SearchBox(props.model.map(_.query).getOrElse(""), props.router, props.dispatcher),
+      React.memo(SearchBox.component, (a: SearchBox.Props, b: SearchBox.Props) => a.initialValue != b.initialValue)(
+        SearchBox.Props(props.query, props.dispatcher)
+      ),
       div(className := classes.searchContent.toString)(
         props.model match {
           case Some(search) =>
@@ -59,7 +64,7 @@ object Search {
               val element: ReactElement =
                 if (items.nonEmpty)
                   Fade(in = true)(
-                    TorrentList("Search results", items, props.router)
+                    TorrentList("Search results", items)
                   )
                 else
                   p(className := classes.notFound.toString)("Nothing discovered yet")
@@ -68,7 +73,7 @@ object Search {
             }
           case _ =>
             props.discovered.filter(_.torrents.nonEmpty).map { discovered =>
-              TorrentList("Recent torrents", discovered.torrents, props.router)
+              TorrentList("Recent torrents", discovered.torrents)
             }
         }
       )
@@ -78,7 +83,7 @@ object Search {
   @react
   object SearchBox {
 
-    case class Props(initialValue: String, router: Router, dispatcher: Dispatcher)
+    case class Props(initialValue: String, dispatcher: Dispatcher)
 
     val component = FunctionalComponent[Props] { props =>
       val classes = useStyles()
@@ -90,9 +95,9 @@ object Search {
         e.preventDefault()
         infoHashOpt match {
           case Some(infoHash) =>
-            props.router.navigate(Route.Torrent(infoHash))
+            Navigate(Routes.torrent(infoHash))
           case None =>
-            props.router.navigate(Route.Search(state))
+            Navigate(Routes.search(state))
         }
       }
 

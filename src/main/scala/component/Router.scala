@@ -3,60 +3,109 @@ package component
 import java.net.URLDecoder
 
 import com.github.lavrov.bittorrent.InfoHash
-import logic.Store
 import org.scalajs.dom.window
+import slinky.core.FunctionalComponent
+import slinky.core.annotations.react
+import slinky.core.facade.{Hooks, React, ReactElement}
+import slinky.web.html.span
+import trail.{Path, PathParser, Route}
 
-trait Router {
-  def current: Router.Route
-  def navigate(route: Router.Route): Unit
-  def onNavigate(route: Router.Route => Unit): Unit
-}
+
+@react
 object Router {
-  def apply(): Router = {
-    def parseHash: Option[Route] = {
-      val str = window.location.hash.drop(1)
-      Route.fromString(str)
-    }
-    val routeVar = new Store[Route](parseHash.getOrElse(Route.Root))
+
+  type Props = ReactElement
+
+  val context = React.createContext(Path("/"))
+
+  val component = FunctionalComponent[Props] { child =>
+    val (current, update) = Hooks.useState(parsePath)
+    Hooks.useEffect(() => subscribe(update), List.empty)
+    context.Provider(current)(child)
+  }
+
+  private def parsePath: Path = {
+    val str = decode(window.location.hash.drop(1))
+    PathParser.parse(if (str.nonEmpty) str else "/")
+  }
+
+  private def subscribe(update: Path => Unit): Unit = {
     window.onhashchange = { _ =>
-      val route = parseHash.getOrElse(Route.Root)
-      routeVar.update(route)
-    }
-    new Router {
-      def current: Route = routeVar.current
-      def navigate(route: Route): Unit =
-        window.location.hash = Route.toString(route)
-      def onNavigate(callback: Route => Unit): Unit =
-        routeVar.subscribe(callback)
+      update(parsePath)
     }
   }
 
-  sealed trait Route
+  private def decode(value: String) = URLDecoder.decode(value, "UTF-8")
+}
 
-  object Route {
-    case object Root extends Route
-    case class Search(query: String) extends Route
-    case class Torrent(infoHash: InfoHash) extends Route
-    case class File(index: Int, torrent: Torrent) extends Route
+object MatchRoute {
 
-    def fromString(string: String): Option[Route] =
-      PartialFunction.condOpt(decode(string)) {
-        case s"search/$query" => Search(query)
-        case s"torrent/${InfoHash.fromString(infoHash)}/file/${Number(index)}" => File(index, Torrent(infoHash))
-        case s"torrent/${InfoHash.fromString(infoHash)}" => Torrent(infoHash)
-        case _ => Root
-      }
+  type Props[A] = A => ReactElement
 
-    def toString(route: Route): String =
-      route match {
-        case Root => ""
-        case Search(query) => s"search/$query"
-        case Torrent(infoHash) => s"torrent/$infoHash"
-        case File(index, Torrent(infoHash)) => s"torrent/$infoHash/file/$index"
-      }
-
-    private val Number: PartialFunction[String, Int] = Function.unlift(_.toIntOption)
-
-    private def decode(value: String) = URLDecoder.decode(value, "UTF-8")
+  def apply[A](route: Route[A]) = FunctionalComponent[Props[A]]{ child =>
+    val path = Hooks.useContext(Router.context)
+    route.parseArgsStrict(path) match {
+      case Some(a) => child(a)
+      case None    => span()
+    }
   }
+}
+
+object SwitchRoute {
+
+  type Case = (Route[A], A => ReactElement) forSome { type A }
+
+  case class Builder(cases: Seq[Case]) {
+
+    def route[A](route: Route[A])(child: A => ReactElement): Builder = Builder(cases :+ (route, child))
+
+    def default(child: => ReactElement): ReactElement = apply(child)(cases)
+  }
+
+  def builder: Builder = Builder(Nil)
+
+  def apply(default: => ReactElement) = FunctionalComponent[Seq[Case]]{ cases =>
+    val path = Hooks.useContext(Router.context)
+    cases.view
+      .map {
+        case (route, render) =>
+          route.parseArgsStrict(path).map(render)
+      }
+      .collectFirst {
+        case Some(element) => element
+      }
+      .getOrElse(default)
+  }
+}
+
+object Navigate {
+
+  def apply(path: String): Unit = {
+
+    window.location.hash = path
+  }
+}
+
+object Routes {
+
+  import trail._
+  import Codecs._
+
+  val root: Route[Unit] = Root
+
+  val search: Route[String] = root / "search" & Param[String]("q")
+
+  val torrent: Route[InfoHash] = root / "torrent" / Arg[InfoHash]
+
+  val torrentFile: Route[(InfoHash, Int)] = torrent / "file" / Arg[Int]
+}
+
+object Codecs {
+  import trail.Codec
+
+  implicit val InfoHashCodec: Codec[InfoHash] =
+    new Codec[InfoHash] {
+      def encode(value: InfoHash): Option[String] = Some(value.toString())
+      def decode(value: Option[String]): Option[InfoHash] = value.flatMap(InfoHash.fromString.lift)
+    }
 }

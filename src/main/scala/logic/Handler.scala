@@ -1,17 +1,14 @@
 package logic
 
 import cats.implicits._
-import logic.model._
 import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
-import component.Router.Route
+import logic.State.Torrent
 import squants.information
-
-import scala.util.chaining._
 
 trait Handler {
 
-  def apply(model: Root, action: Action): Root
+  def apply(model: State, action: Action): State
 }
 
 object Handler {
@@ -21,17 +18,17 @@ object Handler {
 
   private class Impl(send: Command => Unit) extends Handler {
 
-    override def apply(model: Root, action: Action): Root = {
+    override def apply(model: State, action: Action): State = {
       action match {
         case Action.UpdateConnectionStatus(connected) =>
           model.copy(connected = connected)
 
         case Action.Search(query) =>
           model.search match {
-            case Some(Root.Search(`query`, _)) => model
+            case Some(State.Search(`query`, _)) => model
             case _ =>
               send(Command.Search(query))
-              val search = Root.Search(query, None)
+              val search = State.Search(query, None)
               model.copy(search = Some(search))
           }
 
@@ -39,24 +36,21 @@ object Handler {
           val event = upickle.default.read[Event](payload)
 
           event match {
-            case Event.RequestAccepted(infoHash) =>
-              model.copy(torrent = Some(Torrent(infoHash, 0, Nil, None)))
 
             case Event.TorrentPeersDiscovered(infoHash, count) if model.torrent.exists(_.infoHash == infoHash) =>
-              model.copy(
-                torrent = model.torrent.map(_.copy(connected = count))
-              )
+              model.torrent.get.stats.modify(_.copy(connected = count))
+              model
 
             case Event.TorrentMetadataReceived(infoHash, name, files) if model.torrent.exists(_.infoHash == infoHash) =>
               model.torrent match {
                 case Some(torrent) =>
                   val metadataFiles = files.map { f =>
-                    Metadata.File(
+                    State.Metadata.File(
                       f.path,
                       information.Bytes(f.size)
                     )
                   }
-                  val metadata = Metadata(name, metadataFiles)
+                  val metadata = State.Metadata(name, metadataFiles)
                   val withMetadata = torrent.withMetadata(metadata)
                   model.copy(torrent = Some(withMetadata))
 
@@ -71,7 +65,7 @@ object Handler {
             case Event.Discovered(torrents) =>
               model.copy(
                 discovered = model.discovered
-                  .fold(Discovered(torrents.toList)) { discovered =>
+                  .fold(State.Discovered(torrents.toList)) { discovered =>
                     discovered.copy(torrents = torrents.toList ++ discovered.torrents)
                   }
                   .some
@@ -79,9 +73,10 @@ object Handler {
 
             case Event.TorrentStats(infoHash, connected, availability)
               if model.torrent.exists(_.infoHash == infoHash) =>
-              model.copy(
-                torrent = model.torrent.map(_.copy(connected = connected, availability = availability))
+              model.torrent.get.stats.modify( stats =>
+                stats.copy(connected = connected, availability = availability)
               )
+              model
 
             case Event.SearchResults(query, entries) =>
               model.search
@@ -94,37 +89,15 @@ object Handler {
             case _ =>
               model
           }
-        case Action.Navigate(route) =>
-          model.copy(route = Some(route)).pipe { value =>
-            route match {
-              case Route.Search(query) =>
-                this(value, Action.Search(query))
-              case Route.Torrent(infoHash) =>
-                println("Handler navigated to torrent")
-                getTorrent(value, infoHash)
-              case Route.File(_, Route.Torrent(infoHash)) =>
-                getTorrent(value, infoHash)
-              case _ =>
-                if (value.discovered.isEmpty) {
-                  send(Command.GetDiscovered())
-                  value.copy(discovered = Discovered(List.empty).some)
-                }
-                else {
-                  value
-                }
-            }
-          }
-      }
-    }
 
-    private def getTorrent(model: Root, infoHash: InfoHash) = {
-      if (model.torrent.exists(_.infoHash == infoHash))
-        model
-      else {
-        send(Command.GetTorrent(infoHash))
-        model.copy(
-          torrent = Some(Torrent(infoHash, 0, Nil, None))
-        )
+        case Action.OpenTorrent(infoHash) =>
+          if (model.torrent.exists(_.infoHash == infoHash))
+            model
+          else {
+            send(Command.GetTorrent(infoHash))
+            val statsStore = new Store(Torrent.Stats(0, Nil))
+            model.copy(torrent = Some(State.Torrent(infoHash, None, statsStore)))
+          }
       }
     }
   }

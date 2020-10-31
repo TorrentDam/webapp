@@ -1,13 +1,12 @@
 package component
 
+import com.github.lavrov.bittorrent.InfoHash
 import component.material_ui.core._
 import component.material_ui.icons
 import component.material_ui.styles.makeStyles
-import logic.Dispatcher
-import logic.model.{Metadata, Root, Torrent => TorrentModel}
+import logic.{Dispatcher, State}
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
-import slinky.core.facade.ReactElement
 import slinky.web.html._
 
 import scala.scalajs.js
@@ -16,7 +15,7 @@ import scala.scalajs.js.annotation.JSImport
 
 @react
 object App {
-  case class Props(router: Router, model: Root, dispatcher: Dispatcher)
+  case class Props(model: State, dispatcher: Dispatcher)
 
   private val useStyles = makeStyles(theme =>
     obj(
@@ -48,7 +47,7 @@ object App {
         Container(maxWidth = "md")(
           Toolbar(disableGutters = true)(
             SvgIcon(component = windmillIcon, viewBox = "0 0 15 15", color = "inherit"),
-            Link(href = "#", color = "inherit", className = classes.appBarTitle.toString)(
+            Link(href = "#/", color = "inherit", className = classes.appBarTitle.toString)(
               Typography(variant = "h6")("TorrentDam")
             ),
             IconButton(href = "https://github.com/TorrentDam/bittorrent")(
@@ -59,37 +58,38 @@ object App {
       ),
       main(
         Container(maxWidth = "md")(
-          if (props.model.connected)
-            props.model.route.fold[ReactElement](span()) {
-              case Router.Route.Root =>
-                Search(None, props.model.discovered, props.router, props.dispatcher)
-
-              case Router.Route.Search(_) =>
-                Search(props.model.search, None, props.router, props.dispatcher)
-
-              case Router.Route.Torrent(_) =>
-                withTorrent(props.model)(torrent => metadata => Torrent(props.router, torrent, metadata))
-
-              case Router.Route.File(index, _) =>
-                withTorrent(props.model)(torrent =>
-                  metadata => VideoPlayer(props.router, torrent.infoHash, metadata.files(index), index)
+          if (props.model.connected) {
+            SwitchRoute
+              .builder
+              .route(Routes.root)( _ =>
+                Search("", None, props.model.discovered, props.dispatcher)
+              )
+              .route(Routes.search)(query =>
+                Search(query, props.model.search, None, props.dispatcher)
+              )
+              .route(Routes.torrent)( infoHash =>
+                FetchingMetadata(
+                  infoHash,
+                  props.model.torrent,
+                  props.dispatcher,
+                  (torrent, metadata) => Torrent(torrent, metadata)
                 )
-            }
-          else
+              )
+              .route(Routes.torrentFile){
+                case (infoHash, index) =>
+                  FetchingMetadata(
+                    infoHash,
+                    props.model.torrent,
+                    props.dispatcher,
+                    (_, metadata) =>
+                      VideoPlayer(infoHash, metadata.files(index), index)
+                   )
+              }
+              .default(div("Page not found"))
+          } else
             p(className := classes.centered.toString)("Connecting to server...")
         )
       )
     )
-  }
-
-  private def withTorrent(model: Root)(
-    component: TorrentModel => Metadata => ReactElement
-  ): ReactElement = {
-    model.torrent match {
-      case Some(torrent) =>
-        FetchingMetadata(torrent, component(torrent))
-      case _ =>
-        div()
-    }
   }
 }

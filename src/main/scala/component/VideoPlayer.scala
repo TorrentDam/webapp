@@ -3,7 +3,7 @@ package component
 import com.github.lavrov.bittorrent.InfoHash
 import component.material_ui.icons
 import component.material_ui.core._
-import logic.model.Metadata
+import logic.State
 import slinky.core.annotations.react
 import slinky.core.facade.ReactElement
 import slinky.core.{CustomAttribute, FunctionalComponent}
@@ -14,10 +14,10 @@ import scala.scalajs.js
 @react
 object VideoPlayer {
 
-  case class Props(router: Router, infoHash: InfoHash, file: Metadata.File, index: Int)
+  case class Props(infoHash: InfoHash, file: State.Metadata.File, index: Int)
 
   val component = FunctionalComponent[Props] { props =>
-    val navigateBack: js.Function0[Unit] = () => props.router.navigate(Router.Route.Torrent(props.infoHash))
+    val navigateBack: js.Function0[Unit] = () => Navigate(Routes.torrent(props.infoHash))
     val videoStreamUrl = environment.httpUrl(s"/torrent/${props.infoHash.toString}/data/${props.index}")
     div(
       Toolbar(disableGutters = true)(

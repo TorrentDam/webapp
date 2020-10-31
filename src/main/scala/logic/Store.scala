@@ -9,11 +9,15 @@ class Store[A](var current: A) {
     callbacks.foreach(_(current))
   }
 
+  def modify(f: A => A): Unit = {
+    update(f(current))
+  }
+
   def subscribe(f: Store.Callback[A]): Store.Unsubscribe = {
     callbacks = f :: callbacks
 
     { () =>
-      callbacks = callbacks.filter(_ eq f)
+      callbacks = callbacks.filterNot(_ eq f)
     }
   }
 }

@@ -6,14 +6,14 @@ import slinky.core.facade.{Hooks, ReactElement}
 
 object Connect {
 
-  def apply[Model, R](observable: Store[Model])(
+  def apply[Model, R](store: Store[Model])(
     component: Model => ReactElement
   ): ReactElement = {
 
     val wrapper = FunctionalComponent[Unit] { _ =>
-      val (state, setState) = Hooks.useState(observable.current)
+      val (state, setState) = Hooks.useState(store.current)
       def subscribe(): () => Unit = {
-        val unsubscribe = observable.subscribe(setState)
+        val unsubscribe = store.subscribe(setState)
         () => unsubscribe()
       }
       Hooks.useEffect(subscribe, List(true))
