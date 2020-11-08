@@ -2,7 +2,8 @@ package component
 
 import com.github.lavrov.bittorrent.InfoHash
 import typings.materialUiIcons.{components => icons}
-import component.material_ui.core._
+import component.material_ui.core.Button
+import typings.materialUiCore.components.{Card, CardActions, CardContent, CardMedia, Typography}
 import logic.State
 import slinky.core.annotations.react
 import slinky.core.facade.ReactElement
@@ -26,27 +27,29 @@ object VideoPlayer {
           "Back to files"
         )
       ),
-      video(
-        width := "100%",
-        controls := true,
-        new CustomAttribute[Boolean]("autoPlay") := true,
-        source(
-          src := videoStreamUrl
-        )
-      ),
-      Grid(container = true)(
-        Grid(item = true, xs = true)(
-          Toolbar(disableGutters = true)(
-            Typography(variant = "subtitle1", noWrap = true)(props.file.path.last)
-          )
-        ),
-        Grid(item = true)(
-          Toolbar(
-            IconButton(edge = "end", `aria-label` = "download", href = videoStreamUrl)(
-              target := "_blank",
-              icons.GetApp()
+
+      Card()(
+        CardMedia()(
+          video(
+            width := "100%",
+            controls := true,
+            new CustomAttribute[Boolean]("autoPlay") := true,
+            source(
+              src := videoStreamUrl
             )
           )
+        ),
+        CardContent()(
+          Typography
+            .set("variant", "h5")
+            .set("component", "h2")(
+              props.file.path.last
+            )
+            .set("noWrap", true),
+        ),
+
+        CardActions(
+          Button(href = videoStreamUrl)("Download")
         )
       )
     )
