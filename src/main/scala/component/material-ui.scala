@@ -387,50 +387,6 @@ package core {
 
 }
 
-package icons {
-
-  object Home extends ExternalComponentNoProps {
-    val component = jsImport
-    @JSImport("@material-ui/icons/Home", JSImport.Default) @js.native
-    private def jsImport: js.Object = js.native
-  }
-  object Menu extends ExternalComponentNoProps {
-    val component = jsImport
-    @JSImport("@material-ui/icons/Menu", JSImport.Default) @js.native
-    private def jsImport: js.Object = js.native
-  }
-  object GetApp extends ExternalComponentNoProps {
-    val component = jsImport
-    @JSImport("@material-ui/icons/GetApp", JSImport.Default) @js.native
-    private def jsImport: js.Object = js.native
-  }
-  object PlayArrow extends ExternalComponentNoProps {
-    val component = jsImport
-    @JSImport("@material-ui/icons/PlayArrow", JSImport.Default) @js.native
-    private def jsImport: js.Object = js.native
-  }
-  object ArrowBack extends ExternalComponentNoProps {
-    val component = jsImport
-    @JSImport("@material-ui/icons/ArrowBack", JSImport.Default) @js.native
-    private def jsImport: js.Object = js.native
-  }
-  object ArrowForward extends ExternalComponentNoProps {
-    val component = jsImport
-    @JSImport("@material-ui/icons/ArrowForward", JSImport.Default) @js.native
-    private def jsImport: js.Object = js.native
-  }
-  object Search extends ExternalComponentNoProps {
-    val component = jsImport
-    @JSImport("@material-ui/icons/Search", JSImport.Default) @js.native
-    private def jsImport: js.Object = js.native
-  }
-  object GitHub extends ExternalComponentNoProps {
-    val component = jsImport
-    @JSImport("@material-ui/icons/GitHub", JSImport.Default) @js.native
-    private def jsImport: js.Object = js.native
-  }
-}
-
 package object styles {
 
   @JSImport("@material-ui/core/styles", "makeStyles") @js.native

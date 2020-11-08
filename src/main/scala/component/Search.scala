@@ -4,7 +4,7 @@ import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.Event.SearchResults
 import logic.{Action, Dispatcher, State}
 import material_ui.core._
-import material_ui.icons
+import typings.materialUiIcons.{components => icons}
 import material_ui.styles.makeStyles
 import org.scalajs.dom.Event
 import slinky.core.FunctionalComponent

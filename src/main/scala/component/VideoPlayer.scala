@@ -1,7 +1,7 @@
 package component
 
 import com.github.lavrov.bittorrent.InfoHash
-import component.material_ui.icons
+import typings.materialUiIcons.{components => icons}
 import component.material_ui.core._
 import logic.State
 import slinky.core.annotations.react
