@@ -381,6 +381,10 @@ package core {
     private def jsImport: js.Object = js.native
   }
 
+  object CardActionArea extends ExternalComponentNoProps {
+    val component = typings.materialUiCore.cardActionAreaMod.default
+  }
+
 }
 
 package icons {

@@ -11,6 +11,7 @@ import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 import slinky.core.facade.{Hooks, React, ReactElement}
 import slinky.web.html._
+import squants.information
 
 import scala.scalajs.js.Dynamic.{literal => obj}
 
@@ -58,7 +59,7 @@ object Search {
             search.results.map { results =>
               val items = results.collect {
                 case SearchResults.Entry(title, infoHash, size) =>
-                  (infoHash, title)
+                  (infoHash, title, information.Bytes(size))
               }
 
               val element: ReactElement =
@@ -72,9 +73,7 @@ object Search {
               element
             }
           case _ =>
-            props.discovered.filter(_.torrents.nonEmpty).map { discovered =>
-              TorrentList("Recent torrents", discovered.torrents)
-            }
+            div()
         }
       )
     )

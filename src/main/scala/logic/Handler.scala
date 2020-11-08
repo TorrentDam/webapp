@@ -1,7 +1,6 @@
 package logic
 
 import cats.implicits._
-import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import logic.State.Torrent
 import squants.information
