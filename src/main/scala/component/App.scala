@@ -18,7 +18,9 @@ object App {
 
   private val useStyles = makeStyles(theme =>
     obj(
-      appBarSpacer = theme.mixins.toolbar,
+      appBarSpacer = obj(
+        marginBottom = theme.spacing(12)
+      ),
       appBarTitle = obj(
         flexGrow = 1,
         margin = theme.spacing(1)

@@ -25,8 +25,7 @@ object Search {
       root = obj(
         padding = theme.spacing(1),
         display = "flex",
-        textAlign = "center",
-        marginTop = theme.spacing(4)
+        textAlign = "center"
       ),
       input = obj(
         marginLeft = theme.spacing(1),

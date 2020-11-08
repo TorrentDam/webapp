@@ -1,6 +1,7 @@
 package component
 
-import component.material_ui.core.{Divider, ListItem, ListItemText, Toolbar, Typography, List => MUIList}
+import component.material_ui.core.{Divider, ListItem, ListItemText, List => MUIList}
+import typings.materialUiCore.components.{Card, CardActions, CardContent, CardMedia, Typography}
 import logic.State
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
@@ -21,11 +22,17 @@ object Torrent {
     def handlePlayClick(index: Int): js.Function0[Unit] =
       () => Navigate(Routes.torrentFile(props.torrent.infoHash, index))
 
-    div(
-      Toolbar(
-        Typography(color = "textSecondary", variant = "h5")(props.metadata.name)
+    Card()(
+      CardContent()(
+        Typography
+          .set("variant", "h5")
+          .set("component", "h2")
+          .set("gutterBottom", true)
+          .set("noWrap", true)(
+            props.metadata.name
+          ),
+        Divider(),
       ),
-      Divider(),
       Connect(props.torrent.stats)( stats =>
         renderList(props.metadata, stats.availability, handlePlayClick)
       )
@@ -44,7 +51,7 @@ object Torrent {
             key := s"file-$index",
             onClick := handleClick(index),
             ListItemText(
-              primary = Typography(noWrap = true)(file.path.last): ReactElement,
+              primary = Typography.set("noWrap", true)(file.path.last): ReactElement,
               secondary =
                 InformationMetricFormatter.inBestUnit(file.size).rounded(1).toString() +
                 availability

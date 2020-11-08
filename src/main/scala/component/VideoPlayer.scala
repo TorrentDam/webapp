@@ -2,7 +2,7 @@ package component
 
 import com.github.lavrov.bittorrent.InfoHash
 import typings.materialUiIcons.{components => icons}
-import component.material_ui.core.Button
+import component.material_ui.core.{Button, Toolbar}
 import typings.materialUiCore.components.{Card, CardActions, CardContent, CardMedia, Typography}
 import logic.State
 import slinky.core.annotations.react
