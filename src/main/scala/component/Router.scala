@@ -59,6 +59,8 @@ object SwitchRoute {
 
     def route[A](route: Route[A])(child: A => ReactElement): Builder = Builder(cases :+ (route, child))
 
+    def route_[A](route: Route[A])(child: ReactElement): Builder = Builder(cases :+ (route, (_: A) => child))
+
     def default(child: => ReactElement): ReactElement = apply(child)(cases)
   }
 

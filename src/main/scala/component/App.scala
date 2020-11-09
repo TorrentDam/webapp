@@ -30,39 +30,6 @@ object App {
       ),
       centered = obj(
         textAlign = "center"
-      ),
-      search = obj(
-        position = "relative",
-        borderRadius = theme.shape.borderRadius,
-//        backgroundColor = fade(theme.palette.common.white.toString, 0.15),
-        backgroundColor = "rgba(255, 255, 255, 0.15)",
-        marginRight = theme.spacing(2),
-        marginLeft = 0,
-//        width = "100%",
-        `[theme.breakpoints.up('sm')]` = obj(
-          marginLeft = theme.spacing(3),
-          width = "auto",
-        ),
-      ),
-      searchIcon = obj(
-        padding = theme.spacing(0, 2),
-        height = "100%",
-        position = "absolute",
-        pointerEvents = "none",
-        display = "flex",
-        alignItems = "center",
-        justifyContent = "center",
-      ),
-      searchInput = obj(
-        padding = theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft = theme.spacing(6),
-        transition= theme.transitions.create("width"),
-        width = "100%",
-        `[theme.breakpoints.up('md')]`= obj(
-          width = "20ch",
-        ),
-        color = "inherit"
       )
     )
   )
@@ -84,14 +51,15 @@ object App {
             Link(href = "#/", color = "inherit", className = classes.appBarTitle.toString)(
               Typography(variant = "h6")("TorrentDam")
             ),
-            div(className := classes.search.toString)(
-              div(className := classes.searchIcon.toString)(icons.Search()),
-              InputBase(
-                placeholder = "Search...",
-                value = props.model.search.map(_.query).getOrElse(""),
-                onChange = null,
-                className = classes.searchInput.toString)()
-            ),
+            SwitchRoute
+              .builder
+              .route_(Routes.root)(div())
+              .route(Routes.search)( query =>
+                Search.SearchInAppBar(query, props.dispatcher),
+              )
+              .default(
+                Search.SearchInAppBar("", props.dispatcher),
+              ),
             IconButton(href = "https://github.com/TorrentDam/bittorrent")(
               icons.GitHub()
             )
@@ -103,11 +71,11 @@ object App {
           if (props.model.connected) {
             SwitchRoute
               .builder
-              .route(Routes.root)( _ =>
-                Search("", None, props.model.discovered, props.dispatcher)
+              .route_(Routes.root)(
+                Search.SearchBox(props.dispatcher)
               )
               .route(Routes.search)(query =>
-                Search(query, props.model.search, None, props.dispatcher)
+                SearchResult(query, props.model.search, props.dispatcher)
               )
               .route(Routes.torrent)( infoHash =>
                 FetchingMetadata(
