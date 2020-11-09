@@ -34,7 +34,7 @@ libraryDependencies ++= Seq(
 resolvers += Resolver.bintrayRepo("lavrov", "maven")
 
 lazy val Versions = new {
-  val protocol = "0.2.0"
+  val protocol = "0.3.0"
   val `cats-effect` = "3.0.0-M2"
   val `scodec-bits` = "1.1.14"
   val slinky = "0.6.5"

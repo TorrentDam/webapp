@@ -54,8 +54,8 @@ object SearchResult {
           case Some(search) =>
             search.results.map { results =>
               val items = results.collect {
-                case SearchResults.Entry(title, infoHash, size) =>
-                  (infoHash, title, information.Bytes(size))
+                case SearchResults.Entry(title, infoHash, size, ext) =>
+                  (infoHash, title, information.Bytes(size), ext)
               }
 
               val element: ReactElement =

@@ -6,20 +6,20 @@ import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 import slinky.web.html._
 import squants.experimental.formatter.Formatters.InformationMetricFormatter
-import typings.materialUiCore.components.{Card, CardContent, Typography}
+import typings.materialUiCore.components.{Card, CardContent, Typography, Chip}
 import squants.information.Information
 
 @react
 object TorrentList {
 
-  case class Props(title: String, items: List[(InfoHash, String, Information)])
+  case class Props(title: String, items: List[(InfoHash, String, Information, List[String])])
 
   val component = FunctionalComponent[Props] { props =>
 
     def handleClick(infoHash: InfoHash) = () => Navigate(Routes.torrent(infoHash))
 
     for {
-      ((infoHash, title, size), index) <- props.items.zipWithIndex
+      ((infoHash, title, size, ext), index) <- props.items.zipWithIndex
     } yield {
       Card(
         CardActionArea()(
@@ -38,6 +38,17 @@ object TorrentList {
               .set("color", "textSecondary")
               .set("component", "p")(
                 InformationMetricFormatter.inBestUnit(size).rounded(1).toString()
+              ),
+            Typography
+              .set("variant", "body2")
+              .set("color", "textSecondary")
+              .set("component", "p")(
+                ext.map { e =>
+                  Chip
+                    .set("label", e)
+                    .set("size", "small")
+                    .set("variant", "outlined")
+                }
               )
           )
         )
