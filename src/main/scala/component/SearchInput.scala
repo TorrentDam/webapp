@@ -7,13 +7,13 @@ import logic.Dispatcher
 import org.scalajs.dom.Event
 import slinky.core.{FunctionalComponent, SyntheticEvent}
 import slinky.core.annotations.react
-import slinky.core.facade.Hooks
+import slinky.core.facade.{Hooks, ReactElement}
 import slinky.web.html.{className, div, form, onSubmit}
 
 @react
 object SearchInput {
 
-  case class Props(initialValue: String, formClass: String, inputClass: String, dispatcher: Dispatcher)
+  case class Props(initialValue: String, formClass: String, inputClass: String, after: Option[ReactElement], dispatcher: Dispatcher)
 
 
   val component = FunctionalComponent[Props] { props =>
@@ -39,7 +39,8 @@ object SearchInput {
         value = state,
         onChange = event => setState(event.target.value.toString),
         className = props.inputClass
-      )
+      ),
+      props.after
     )
   }
 

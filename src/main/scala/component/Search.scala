@@ -81,7 +81,7 @@ object Search {
 
       div(className := classes.search.toString)(
         div(className := classes.searchIcon.toString)(icons.Search()),
-        SearchInput(props.initialValue, "", classes.searchInput.toString, props.dispatcher)
+        SearchInput(props.initialValue, "", classes.searchInput.toString, None, props.dispatcher)
       )
     }
   }
@@ -97,6 +97,10 @@ object Search {
           padding = theme.spacing(1),
           display = "flex",
           textAlign = "center"
+        ),
+        form = obj(
+          display = "flex",
+          flex = 1
         ),
         input = obj(
           marginLeft = theme.spacing(1),
@@ -117,9 +121,16 @@ object Search {
       val classes = useStyles()
 
       Paper(className = classes.root.toString)(
-        SearchInput("", classes.input.toString, classes.root.toString, props.dispatcher),
-        IconButton(`type` = "submit")(
-          icons.ArrowForward()
+        SearchInput(
+          "",
+          classes.form.toString,
+          classes.input.toString,
+          Some(
+            IconButton(`type` = "submit")(
+              icons.Search()
+            )
+          ),
+          props.dispatcher
         )
       )
     }
