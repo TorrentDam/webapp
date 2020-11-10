@@ -10,9 +10,6 @@ scalacOptions ++= Seq(
   "-Ymacro-annotations",
 )
 
-// This is an application with a main method
-scalaJSUseMainModuleInitializer := false
-
 import org.scalajs.linker.interface.ModuleSplitStyle
 scalaJSLinkerConfig ~= (_
   .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
@@ -35,7 +32,7 @@ resolvers += Resolver.bintrayRepo("lavrov", "maven")
 
 lazy val Versions = new {
   val protocol = "0.3.0"
-  val `cats-effect` = "3.0.0-M2"
+  val `cats-effect` = "3.0.0-M3"
   val `scodec-bits` = "1.1.14"
   val slinky = "0.6.5"
   val squants = "1.6.0"
