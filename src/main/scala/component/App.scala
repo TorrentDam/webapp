@@ -21,10 +21,20 @@ object App {
       appBarSpacer = obj(
         marginBottom = theme.spacing(12)
       ),
-      appBarTitle = obj(
-        flexGrow = 1,
-        margin = theme.spacing(1)
+      homeIcon = obj(
+        marginRight = theme.spacing(2)
       ),
+      appBarTitle = {
+        val base =
+          obj(
+            flexGrow = 1,
+            display = "none",
+          )
+        base.updateDynamic(theme.breakpoints.up("sm").toString)(
+          obj(display = "block")
+        )
+        base
+      },
       navLink = obj(
         margin = theme.spacing(1, 1.5)
       ),
@@ -47,7 +57,12 @@ object App {
       AppBar(position = "fixed")(
         Container(maxWidth = "md")(
           Toolbar(disableGutters = true)(
-            SvgIcon(component = windmillIcon, viewBox = "0 0 15 15", color = "inherit"),
+            SvgIcon(
+              className = classes.homeIcon.toString,
+              component = windmillIcon,
+              viewBox = "0 0 15 15",
+              color = "inherit"
+            ),
             Link(href = "#/", color = "inherit", className = classes.appBarTitle.toString)(
               Typography(variant = "h6")("TorrentDam")
             ),

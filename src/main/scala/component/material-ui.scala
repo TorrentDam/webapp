@@ -373,7 +373,12 @@ package core {
 
   @react
   object SvgIcon extends ExternalComponent {
-    case class Props(component: js.Any, viewBox: UndefOr[String] = js.undefined, color: UndefOr[String] = js.undefined)
+    case class Props(
+      className: UndefOr[String] = js.undefined,
+      component: UndefOr[js.Any] = js.undefined,
+      viewBox: UndefOr[String] = js.undefined,
+      color: UndefOr[String] = js.undefined
+   )
 
     val component = jsImport
 
