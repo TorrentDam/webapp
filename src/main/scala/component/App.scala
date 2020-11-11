@@ -27,7 +27,6 @@ object App {
       appBarTitle = {
         val base =
           obj(
-            flexGrow = 1,
             display = "none",
           )
         base.updateDynamic(theme.breakpoints.up("sm").toString)(
@@ -35,6 +34,10 @@ object App {
         )
         base
       },
+      flexGrow = obj(
+        flexGrow = 1,
+        display = "block",
+      ),
       navLink = obj(
         margin = theme.spacing(1, 1.5)
       ),
@@ -66,6 +69,7 @@ object App {
             Link(href = "#/", color = "inherit", className = classes.appBarTitle.toString)(
               Typography(variant = "h6")("TorrentDam")
             ),
+            div(className := classes.flexGrow.toString),
             SwitchRoute
               .builder
               .route_(Routes.root)(div())

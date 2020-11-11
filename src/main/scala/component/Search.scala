@@ -47,7 +47,6 @@ object Search {
           backgroundColor = "rgba(255, 255, 255, 0.15)",
           marginRight = theme.spacing(2),
           marginLeft = 0,
-          //        width = "100%",
           `[theme.breakpoints.up('sm')]` = obj(
             marginLeft = theme.spacing(3),
             width = "auto",
@@ -65,7 +64,7 @@ object Search {
         searchInput = obj(
           padding = theme.spacing(1, 1, 1, 0),
           // vertical padding + font size from searchIcon
-          paddingLeft = theme.spacing(6),
+          paddingLeft = s"calc(1em + ${theme.spacing(4)}px)",
           transition= theme.transitions.create("width"),
           width = "100%",
           `[theme.breakpoints.up('md')]`= obj(
