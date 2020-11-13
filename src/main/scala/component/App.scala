@@ -24,16 +24,12 @@ object App {
       homeIcon = obj(
         marginRight = theme.spacing(2)
       ),
-      appBarTitle = {
-        val base =
-          obj(
-            display = "none",
-          )
-        base.updateDynamic(theme.breakpoints.up("sm").toString)(
-          obj(display = "block")
+      appBarTitle = js.special.objectLiteral(
+        "display" -> "none",
+        theme.breakpoints.up("sm") -> obj(
+          display = "block"
         )
-        base
-      },
+      ),
       flexGrow = obj(
         flexGrow = 1,
         display = "block",

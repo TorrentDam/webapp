@@ -1,17 +1,14 @@
 package component
 
-import com.github.lavrov.bittorrent.InfoHash
-import com.github.lavrov.bittorrent.app.protocol.Event.SearchResults
-import logic.{Action, Dispatcher, State}
+import logic.Dispatcher
 import material_ui.core._
 import typings.materialUiIcons.{components => icons}
 import material_ui.styles.makeStyles
-import org.scalajs.dom.Event
-import slinky.core.{FunctionalComponent, SyntheticEvent}
+import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
-import slinky.core.facade.{Hooks, React}
 import slinky.web.html._
 
+import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => obj}
 
 object Search {
@@ -40,17 +37,21 @@ object Search {
           textAlign = "center",
           marginTop = theme.spacing(4)
         ),
-        search = obj(
-          position = "relative",
-          borderRadius = theme.shape.borderRadius,
-          //        backgroundColor = fade(theme.palette.common.white.toString, 0.15),
-          backgroundColor = "rgba(255, 255, 255, 0.15)",
-          marginRight = theme.spacing(2),
-          marginLeft = 0,
-          `[theme.breakpoints.up('sm')]` = obj(
-            marginLeft = theme.spacing(3),
-            width = "auto",
+        search = js.Object.assign(
+          obj(
+            position = "relative",
+            borderRadius = theme.shape.borderRadius,
+            //        backgroundColor = fade(theme.palette.common.white.toString, 0.15),
+            backgroundColor = "rgba(255, 255, 255, 0.15)",
+            marginRight = theme.spacing(2),
+            marginLeft = 0,
           ),
+          js.special.objectLiteral(
+            theme.breakpoints.up("sm") -> obj(
+              marginLeft = theme.spacing(3),
+              width = "auto",
+            )
+          )
         ),
         searchIcon = obj(
           padding = theme.spacing(0, 2),
