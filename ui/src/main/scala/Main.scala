@@ -18,7 +18,10 @@ object Main {
               cls := "input is-primary is-large",
               typ := "text",
               placeholder := "Search",
-              onChange.mapToValue --> searchTermVar
+              controlled(
+                value <-- searchTermVar,
+                onInput.mapToValue --> searchTermVar
+              )
             )
           ),
           div(cls := "control",
