@@ -1,3 +1,4 @@
+import com.raquo.airstream.core.Sink
 import org.scalajs.dom
 import com.raquo.laminar.api.L._
 
@@ -5,20 +6,25 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 
-    val nameVar = Var(initial = "world")
+    val searchTermVar = Var(initial = "")
 
     val rootElement = div(
-      className := "content",
-      h1("Laminar"),
-      label("Your name: "),
-      input(
-        onMountFocus,
-        placeholder := "Enter your name here",
-        inContext { thisNode => onInput.mapTo(thisNode.ref.value) --> nameVar }
-      ),
-      span(
-        "Hello, ",
-        child.text <-- nameVar.signal.map(_.reverse)
+      cls := "container is-max-desktop",
+      form(
+        onSubmit.preventDefault --> { (_: Any) => println(searchTermVar.now()) },
+        div(cls := "field has-addons",
+          div(cls := "control is-expanded",
+            input(
+              cls := "input is-primary is-large",
+              typ := "text",
+              placeholder := "Search",
+              onChange.mapToValue --> searchTermVar
+            )
+          ),
+          div(cls := "control",
+            button(cls := "button is-primary is-large", "Go")
+          )
+        )
       )
     )
 

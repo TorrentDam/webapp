@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
 
-  webapp:
+  build:
     runs-on: ubuntu-latest
     steps:
 
