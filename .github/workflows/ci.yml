@@ -16,6 +16,11 @@ jobs:
 
       - uses: actions/checkout@v1
 
+      - name: Set up credentials
+        run: |
+          echo 'Global / credentials += ' > credentials.sbt
+          echo 'Credentials("GitHub Package Registry", "maven.pkg.github.com", "lavrov", "${{ secrets.GITHUB_TOKEN }}")' >> credentials.sbt
+
       - name: Build
         run: make prepare-gh-pages
 
