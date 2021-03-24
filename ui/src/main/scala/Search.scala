@@ -27,7 +27,7 @@ object Search {
               )
             )
           ),
-          div(cls := "control",
+          div(cls := "control is-hidden-mobile",
             button(cls := "button is-primary is-large", "Go")
           )
         )
