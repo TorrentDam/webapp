@@ -32,11 +32,23 @@ object Search {
           )
         )
       ),
-      ul(cls := "block",
+      div(
         children <-- receive.map { results =>
           results.entries.map { entry =>
-            li(cls := "box mb-1",
-              entry.name
+            article(cls := "media",
+              div(cls := "media-left", p(cls := "image image is-64x64", img(src := "https://bulma.io/images/placeholders/128x128.png"))),
+              div(cls := "media-content",
+                div(cls := "content",
+                  p(
+                    a(href := "#", strong(entry.name)),
+                  ),
+                  p(cls := "tags",
+                    entry.ext.map( ext =>
+                      span(cls := "tag is-light", ext)
+                    )
+                  )
+                )
+              )
             )
           }
         }
