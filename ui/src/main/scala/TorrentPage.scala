@@ -20,7 +20,19 @@ object TorrentPage {
             )
           case Some(metadata) =>
             List(
-              h1(cls := "title", metadata.name)
+              h4(cls := "title is-4", metadata.name),
+              div(cls := "tabs",
+                ul(
+                  li(cls := "is-active", a("Files")),
+                )
+              ),
+              div(
+                metadata.files.map { file =>
+                  a(cls := "panel-block",
+                    div(file.path.mkString)
+                  )
+                }
+              )
             )
         }
 
