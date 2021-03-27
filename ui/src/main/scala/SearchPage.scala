@@ -42,7 +42,7 @@ object SearchPage {
                   p(
                     a(
                       strong(entry.name),
-                      onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash.toString()))},
+                      onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash))},
                     ),
                     br(),
                     p(cls := "tags",
