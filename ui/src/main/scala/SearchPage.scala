@@ -45,7 +45,7 @@ object SearchPage {
                       onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash))},
                     ),
                     br(),
-                    p(cls := "tags",
+                    span(cls := "tags mb-0",
                       entry.ext.map( ext =>
                         span(cls := "tag is-light", ext)
                       )
