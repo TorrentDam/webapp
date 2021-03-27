@@ -18,7 +18,13 @@ object Main {
     val rootElement =
       div(
         ws.connect,
-        Search(ws.send, ws.received.collect { case r: Event.SearchResults => r })
+        child <--
+          Routing.router.$currentPage.map {
+            case Routing.Page.Root =>
+              SearchPage(ws.send, ws.received.collect { case r: Event.SearchResults => r })
+            case Routing.Page.Torrent(infoHash) =>
+              TorrentPage(infoHash)
+          }
       )
 
     val containerNode = dom.document.querySelector("#root")

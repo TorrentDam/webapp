@@ -5,7 +5,7 @@ import com.raquo.airstream.core.{EventStream, Observer}
 import com.raquo.laminar.api.L._
 
 
-object Search {
+object SearchPage {
 
   def apply(send: Observer[Command.Search], receive: EventStream[Event.SearchResults]) = {
 
@@ -40,11 +40,15 @@ object Search {
               div(cls := "media-content",
                 div(cls := "content",
                   p(
-                    a(href := "#", strong(entry.name)),
-                  ),
-                  p(cls := "tags",
-                    entry.ext.map( ext =>
-                      span(cls := "tag is-light", ext)
+                    a(
+                      strong(entry.name),
+                      onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash.toString()))},
+                    ),
+                    br(),
+                    p(cls := "tags",
+                      entry.ext.map( ext =>
+                        span(cls := "tag is-light", ext)
+                      )
                     )
                   )
                 )
