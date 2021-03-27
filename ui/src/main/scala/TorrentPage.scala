@@ -74,10 +74,8 @@ object TorrentPage {
             ),
             div(cls:="card-content",
               div(cls:="media",
-                div(cls:="media-left",
-                  div(cls:="media-content",
-                    p(cls:="title is-4", activeFile.name)
-                  )
+                div(cls:="media-content",
+                  h4(cls:="title is-4", activeFile.name)
                 )
               )
             )
