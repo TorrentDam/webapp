@@ -2,12 +2,18 @@ package default
 
 import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
+import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L._
 
 
 object TorrentPage {
 
   def apply(infoHash: InfoHash, send: Observer[Command.GetTorrent], events: EventStream[Event.TorrentMetadataReceived]) = {
+
+    val showModalVar = Var(Option.empty[ActiveFile])
+
+    def videoUrl(index: Int) =
+      s"https://bittorrent-server.herokuapp.com/torrent/$infoHash/data/$index"
 
     val content =
       events
@@ -27,8 +33,9 @@ object TorrentPage {
                 )
               ),
               div(
-                metadata.files.map { file =>
+                metadata.files.zipWithIndex.map { case (file, index) =>
                   a(cls := "panel-block",
+                    onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
                     div(file.path.mkString)
                   )
                 }
@@ -38,7 +45,48 @@ object TorrentPage {
 
     div(
       onMountCallback(_ => send.onNext(Command.GetTorrent(infoHash))),
-      children <-- content
+      children <-- content,
+      child <-- showModalVar.signal.map {
+        case Some(file) => videoModal(file, showModalVar.toObserver.contramap(_ => None))
+        case None => div()
+      }
+    )
+  }
+
+  private case class ActiveFile(name: String, src: String)
+
+  private val controls = customProp("controls", StringAsIsCodec)
+
+  private def videoModal(activeFile: ActiveFile, close: Observer[Any]) = {
+    div(cls:="modal is-active",
+      div(cls:="modal-background",
+        onClick --> close
+      ),
+      div(cls:="modal-content",
+        div(cls := "card",
+          div(cls := "card-image",
+            video(cls := "is-4by3",
+              width := "100%",
+              controls := "true",
+              source(
+                src := activeFile.src
+              )
+            ),
+            div(cls:="card-content",
+              div(cls:="media",
+                div(cls:="media-left",
+                  div(cls:="media-content",
+                    p(cls:="title is-4", activeFile.name)
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      button(cls:="modal-close is-large", aria.label:="close",
+        onClick --> close
+      )
     )
   }
 }
