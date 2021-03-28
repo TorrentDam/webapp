@@ -50,7 +50,7 @@ object SearchPage {
           div(cls := "media",
             div(cls := "media-content",
               div(cls := "content",
-                p(
+                p(cls := "subtitle is-6",
                   a(
                     onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash))},
                     entry.name
