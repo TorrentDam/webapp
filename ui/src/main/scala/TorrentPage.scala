@@ -4,6 +4,7 @@ import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L._
+import scala.util.chaining.scalaUtilChainingOps
 
 
 object TorrentPage {
@@ -14,6 +15,14 @@ object TorrentPage {
 
     def videoUrl(index: Int) =
       s"https://bittorrent-server.herokuapp.com/torrent/$infoHash/data/$index"
+
+    def isPlayable(src: String) = {
+      val ext = src.split('.').lastOption
+      ext match {
+        case Some("mp4" | "avi" | "webm" | "mkv") => true
+        case _ => false
+      }
+    }
 
     val content =
       events
@@ -35,9 +44,24 @@ object TorrentPage {
               div(
                 metadata.files.zipWithIndex.map { case (file, index) =>
                   div(cls := "media",
-                    a(cls := "media-content",
-                      onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
-                      div(file.path.mkString)
+                    div(cls := "media-content",
+                      p(cls := "block", file.path.mkString),
+                      div(cls := "buttons mb-0",
+                        a(cls := "button is-small",
+                          target := "_blank",
+                          href := videoUrl(index),
+                          "Download"
+                        ),
+                        isPlayable(file.path.last).pipe {
+                          case true =>
+                            button(cls := "button is-small",
+                              onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
+                              "Watch"
+                            )
+                          case _ =>
+                            div()
+                        }
+                      )
                     )
                   )
                 }
