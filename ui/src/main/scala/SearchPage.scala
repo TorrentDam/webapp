@@ -32,31 +32,28 @@ object SearchPage {
           )
         )
       ),
-      div(
-        children <-- receive.map { results =>
-          results.entries.map { entry =>
-            article(cls := "media",
-              div(cls := "media-left", p(cls := "image image is-64x64", img(src := "https://bulma.io/images/placeholders/128x128.png"))),
-              div(cls := "media-content",
-                div(cls := "content",
-                  p(
-                    a(
-                      strong(entry.name),
-                      onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash))},
-                    ),
-                    br(),
-                    span(cls := "tags mb-0",
-                      entry.ext.map( ext =>
-                        span(cls := "tag is-light", ext)
-                      )
+      children <-- receive.map { results =>
+        results.entries.map { entry =>
+          div(cls := "media",
+            div(cls := "media-content",
+              div(cls := "content",
+                p(
+                  a(
+                    strong(entry.name),
+                    onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash))},
+                  ),
+                  br(),
+                  span(cls := "tags mb-0",
+                    entry.ext.map( ext =>
+                      span(cls := "tag is-light", ext)
                     )
                   )
                 )
               )
             )
-          }
+          )
         }
-      )
+      }
     )
   }
 }

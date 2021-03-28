@@ -34,9 +34,11 @@ object TorrentPage {
               ),
               div(
                 metadata.files.zipWithIndex.map { case (file, index) =>
-                  a(cls := "panel-block",
-                    onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
-                    div(file.path.mkString)
+                  div(cls := "media",
+                    a(cls := "media-content",
+                      onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
+                      div(file.path.mkString)
+                    )
                   )
                 }
               )
