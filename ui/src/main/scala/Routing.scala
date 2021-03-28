@@ -21,7 +21,7 @@ object Routing {
   implicit val torrentPageRW: ReadWriter[Page.Torrent] = macroRW
   implicit val pageRW: ReadWriter[Page] = macroRW
 
-  val pathPrefix = root / "laminar-bulma"
+  val appPathRoot = root
 
   implicit val infoHashFromString: FromString[InfoHash, DummyError] =
     FromString
@@ -34,12 +34,12 @@ object Routing {
       Route.onlyQuery[Page.Root, List[String]](
         _.query.toList,
         query => Page.Root(query.headOption),
-        pattern = (pathPrefix / endOfSegments) ? listParam[String]("q")
+        pattern = (appPathRoot / endOfSegments) ? listParam[String]("q")
       ),
       Route[Page.Torrent, InfoHash](
         _.infoHash,
         infoHash => Page.Torrent(infoHash),
-        pattern = pathPrefix / "torrent" / segment[InfoHash] / endOfSegments
+        pattern = appPathRoot / "torrent" / segment[InfoHash] / endOfSegments
       )
     ),
     getPageTitle = _.toString,

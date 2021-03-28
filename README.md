@@ -1,4 +1,4 @@
-Webapp 2
+webapp
 ======
 
 Compile
