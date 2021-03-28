@@ -15,6 +15,8 @@ object TorrentPage {
 
     val showModalVar = Var(Option.empty[ActiveFile])
 
+    val loadingVar = Var(true)
+
     def videoUrl(index: Int) =
       s"https://bittorrent-server.herokuapp.com/torrent/$infoHash/data/$index"
 
@@ -29,7 +31,10 @@ object TorrentPage {
             )
           case Some(metadata) =>
             List(
-              h4(cls := "title is-4", metadata.name),
+              h4(cls := "title is-4",
+                onMountCallback(_ => loadingVar.set(false)),
+                metadata.name
+              ),
               div(cls := "tabs",
                 ul(
                   li(cls := "is-active", a("Files")),
@@ -59,12 +64,22 @@ object TorrentPage {
         }
 
     div(
-      onMountCallback(_ => send.onNext(Command.GetTorrent(infoHash))),
-      children <-- content,
-      child <-- showModalVar.signal.map {
-        case Some(file) => openModal(file, showModalVar.toObserver.contramap(_ => None))
-        case None => div()
-      }
+      child <-- loadingVar.signal.map {
+        case true =>
+          progress(cls := "progress is-primary", styleAttr := "height: 0.25rem; margin-bottom: -0.25rem")
+        case false =>
+          div()
+      },
+      section(cls := "section",
+        div(cls := "container",
+          onMountCallback(_ => send.onNext(Command.GetTorrent(infoHash))),
+          children <-- content,
+          child <-- showModalVar.signal.map {
+            case Some(file) => openModal(file, showModalVar.toObserver.contramap(_ => None))
+            case None => div()
+          }
+        )
+      )
     )
   }
 
