@@ -48,28 +48,30 @@ object SearchPage {
             )
           )
         ),
-        children <-- receive.map { results =>
-          results.entries.map { entry =>
-            div(cls := "media",
-              div(cls := "media-content",
-                div(cls := "content",
-                  p(cls := "subtitle is-6",
-                    a(
-                      onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash))},
-                      entry.name
-                    )
-                  ),
-                  p(cls := "level is-mobile",
-                    div(cls := "level-left",
-                      div(cls := "level-item",
-                        span(cls := "is-size-7 has-text-weight-light",
-                          InformationMetricFormatter.inBestUnit(Bytes(entry.size)).rounded(1).toString
-                        )
-                      ),
-                      div(cls := "level-item",
-                        span(cls := "tags m-0",
-                          entry.ext.map( ext =>
-                            span(cls := "tag is-light my-0", ext)
+        children <-- receive
+          .map { results =>
+            results.entries.map { entry =>
+              div(cls := "media",
+                div(cls := "media-content",
+                  div(cls := "content",
+                    p(cls := "subtitle is-6",
+                      a(
+                        onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash))},
+                        entry.name
+                      )
+                    ),
+                    p(cls := "level is-mobile",
+                      div(cls := "level-left",
+                        div(cls := "level-item",
+                          span(cls := "is-size-7 has-text-weight-light",
+                            InformationMetricFormatter.inBestUnit(Bytes(entry.size)).rounded(1).toString
+                          )
+                        ),
+                        div(cls := "level-item",
+                          span(cls := "tags m-0",
+                            entry.ext.map( ext =>
+                              span(cls := "tag is-light my-0", ext)
+                            )
                           )
                         )
                       )
@@ -77,9 +79,13 @@ object SearchPage {
                   )
                 )
               )
-            )
+            }
           }
-        }
+          .startWith {
+            div(cls := "notification is-warning content",
+              "Torrents may include ", strong("illegal, violent"), " or ", strong("adult"), " content. Open or download files on your ", strong("own risk"), "."
+            ) :: Nil
+          }
       )
     )
   }
