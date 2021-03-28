@@ -1,10 +1,9 @@
 
 
-val ui = project
+val webapp = project
+  .in(file("."))
   .settings(
-    name := "Laminar + Bulma",
     version := "1-SNAPSHOT",
-    normalizedName := "laminar-bulma",
     organization := "com.github.lavrov",
     scalaVersion := "2.13.5",
     libraryDependencies ++= List(
