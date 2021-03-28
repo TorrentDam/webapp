@@ -13,10 +13,11 @@ object Routing {
 
   sealed trait Page
   object Page {
-    case object Root extends Page
+    case class Root(query: Option[String]) extends Page
     case class Torrent(infoHash: InfoHash) extends Page
   }
 
+  implicit val rootPageRW: ReadWriter[Page.Root] = macroRW
   implicit val torrentPageRW: ReadWriter[Page.Torrent] = macroRW
   implicit val pageRW: ReadWriter[Page] = macroRW
 
@@ -30,9 +31,10 @@ object Routing {
 
   val router = new Router[Page](
     routes = List(
-      Route.static(
-        staticPage = Page.Root,
-        pattern = pathPrefix / endOfSegments
+      Route.onlyQuery[Page.Root, List[String]](
+        _.query.toList,
+        query => Page.Root(query.headOption),
+        pattern = (pathPrefix / endOfSegments) ? listParam[String]("q")
       ),
       Route[Page.Torrent, InfoHash](
         _.infoHash,
@@ -43,7 +45,7 @@ object Routing {
     getPageTitle = _.toString,
     serializePage = page => write(page)(pageRW),
     deserializePage = pageStr => read(pageStr)(pageRW),
-    routeFallback = _ => Page.Root
+    routeFallback = _ => Page.Root(None)
   )(
     $popStateEvent = L.windowEvents.onPopState,
     owner = L.unsafeWindowOwner,

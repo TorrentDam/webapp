@@ -7,14 +7,27 @@ import com.raquo.laminar.api.L._
 
 object SearchPage {
 
-  def apply(send: Observer[Command.Search], receive: EventStream[Event.SearchResults]) = {
+  def apply(query: Option[String], send: Observer[Command.Search], receive: EventStream[Event.SearchResults]) = {
 
-    val searchTermVar = Var(initial = "")
+    val searchTermVar = Var(initial = query.getOrElse(""))
 
     div(
       cls := "container is-max-desktop",
+      onMountCallback { _ =>
+        query.foreach { v =>
+          send.onNext(Command.Search(v))
+        }
+      },
       form(cls := "block",
-        onSubmit.preventDefault.mapTo(Command.Search(searchTermVar.now)) --> send,
+        onSubmit.preventDefault --> { _ =>
+          val value = PartialFunction.condOpt(searchTermVar.now()) {
+            case str if str.nonEmpty => str
+          }
+          Routing.router.pushState(Routing.Page.Root(value))
+          value.foreach { v =>
+            send.onNext(Command.Search(v))
+          }
+        },
         div(cls := "field has-addons",
           div(cls := "control is-expanded",
             input(

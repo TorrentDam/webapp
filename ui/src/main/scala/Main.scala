@@ -20,8 +20,8 @@ object Main {
         ws.connect,
         child <--
           Routing.router.$currentPage.map {
-            case Routing.Page.Root =>
-              SearchPage(ws.send, ws.received.collect { case r: Event.SearchResults => r })
+            case Routing.Page.Root(query) =>
+              SearchPage(query, ws.send, ws.received.collect { case r: Event.SearchResults => r })
             case Routing.Page.Torrent(infoHash) =>
               TorrentPage(infoHash, ws.send, ws.received.collect { case r: Event.TorrentMetadataReceived => r })
           }
