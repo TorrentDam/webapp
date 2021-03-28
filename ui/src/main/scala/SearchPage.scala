@@ -3,6 +3,8 @@ package default
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import com.raquo.airstream.core.{EventStream, Observer}
 import com.raquo.laminar.api.L._
+import squants.experimental.formatter.Formatters.InformationMetricFormatter
+import squants.information.{Bytes, Information}
 
 
 object SearchPage {
@@ -60,7 +62,7 @@ object SearchPage {
                   div(cls := "level-left",
                     div(cls := "level-item",
                       span(cls := "is-size-7 has-text-weight-light",
-                        "503MB"
+                        InformationMetricFormatter.inBestUnit(Bytes(entry.size)).rounded(1).toString
                       )
                     ),
                     div(cls := "level-item",

@@ -13,6 +13,7 @@ val ui = project
       "io.laminext" %%% "websocket" % "0.12.1",
       "io.laminext" %%% "websocket-circe" % "0.12.1",
       "com.lihaoyi" %%% "upickle" % "1.3.8",
+      "org.typelevel" %%% "squants" % "1.6.0",
     ),
     libraryDependencies ++= List(
       "com.github.torrentdam" %%% "protocol" % "0.5.0",
