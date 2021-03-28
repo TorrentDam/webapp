@@ -52,13 +52,23 @@ object SearchPage {
               div(cls := "content",
                 p(
                   a(
-                    strong(entry.name),
                     onClick --> {_ => Routing.router.pushState(Routing.Page.Torrent(entry.infoHash))},
-                  ),
-                  br(),
-                  span(cls := "tags mb-0",
-                    entry.ext.map( ext =>
-                      span(cls := "tag is-light", ext)
+                    entry.name
+                  )
+                ),
+                p(cls := "level is-mobile",
+                  div(cls := "level-left",
+                    div(cls := "level-item",
+                      span(cls := "is-size-7 has-text-weight-light",
+                        "503MB"
+                      )
+                    ),
+                    div(cls := "level-item",
+                      span(cls := "tags m-0",
+                        entry.ext.map( ext =>
+                          span(cls := "tag is-light my-0", ext)
+                        )
+                      )
                     )
                   )
                 )
