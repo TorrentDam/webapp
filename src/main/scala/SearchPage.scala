@@ -15,6 +15,12 @@ object SearchPage {
 
     val resultSignal = query.combineWith(receive.startWithNone)
 
+    val isLoading = resultSignal.map {
+      case (Some(query), Some(results)) => query != results.query
+      case (Some(_), None) => true
+      case _ => false
+    }
+
     section(cls := "section",
       div(
         onMountCallback { ctx =>
@@ -32,7 +38,7 @@ object SearchPage {
             Routing.router.pushState(Routing.Page.Root(value))
           },
           div(cls := "field has-addons",
-            div(cls := "control is-expanded",
+            div(cls := "control is-large is-expanded", cls.toggle("is-loading") <-- isLoading,
               input(
                 cls := "input is-primary is-large",
                 typ := "text",
