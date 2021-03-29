@@ -75,7 +75,7 @@ object SearchPage {
                           div(cls := "level-item",
                             span(cls := "tags m-0",
                               entry.ext.map( ext =>
-                                span(cls := "tag is-light my-0", ext)
+                                span(cls := "tag is-light has-text-weight-light my-0", ext)
                               )
                             )
                           )

@@ -44,16 +44,17 @@ object TorrentPage {
                 metadata.files.zipWithIndex.map { case (file, index) =>
                   div(cls := "media",
                     div(cls := "media-content",
-                      p(cls := "subtitle is-6", file.path.mkString),
+                      p(cls := "subtitle is-6",
+                        a(
+                          file.path.mkString,
+                          onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
+                        )
+                      ),
                       p(cls := "buttons mb-0",
-                        a(cls := "button is-small",
+                        a(cls := "button is-small is-light",
                           target := "_blank",
                           href := videoUrl(index),
                           "Download"
-                        ),
-                        button(cls := "button is-small",
-                          onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
-                          "Open"
                         )
                       )
                     )
