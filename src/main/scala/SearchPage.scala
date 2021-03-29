@@ -86,8 +86,11 @@ object SearchPage {
                 )
               }
             case _ =>
-              div(cls := "notification is-warning content",
-                "Torrents may include ", strong("illegal, violent"), " or ", strong("adult"), " content. Open or download files on your ", strong("own risk"), "."
+              div(cls := "message is-warning content",
+                div(cls := "message-body",
+                  "Torrents may contain ", strong("illegal, violent"), " or ", strong("adult"), " content. ",
+                  "Open or download files on your ", strong("own risk"), "."
+                )
               ) :: Nil
           }
       )
