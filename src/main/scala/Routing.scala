@@ -45,7 +45,8 @@ object Routing {
     getPageTitle = _.toString,
     serializePage = page => write(page)(pageRW),
     deserializePage = pageStr => read(pageStr)(pageRW),
-    routeFallback = _ => Page.Root(None)
+    routeFallback = _ => Page.Root(None),
+    deserializeFallback = _ => Page.Root(None),
   )(
     $popStateEvent = L.windowEvents.onPopState,
     owner = L.unsafeWindowOwner,

@@ -3,6 +3,7 @@ package default
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import org.scalajs.dom
 import com.raquo.laminar.api.L._
+import com.raquo.waypoint.SplitRender
 import io.laminext.websocket._
 
 object Main {
@@ -18,13 +19,14 @@ object Main {
     val rootElement =
       div(
         ws.connect,
-        child <--
-          Routing.router.$currentPage.map {
-            case Routing.Page.Root(query) =>
-              SearchPage(query, ws.send, ws.received.collect { case r: Event.SearchResults => r })
-            case Routing.Page.Torrent(infoHash) =>
-              TorrentPage(infoHash, ws.send, ws.received.collect { case r: Event.TorrentMetadataReceived => r })
+        child <-- SplitRender[Routing.Page, HtmlElement](Routing.router.$currentPage)
+          .collectSignal[Routing.Page.Root] { $page =>
+            SearchPage($page.map(_.query), ws.send, ws.received.collect { case r: Event.SearchResults => r })
           }
+          .collect[Routing.Page.Torrent] { page =>
+            TorrentPage(page.infoHash, ws.send, ws.received.collect { case r: Event.TorrentMetadataReceived => r })
+          }
+          .$view
       )
 
     val containerNode = dom.document.querySelector("#root")
