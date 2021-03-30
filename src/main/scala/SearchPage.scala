@@ -9,11 +9,11 @@ import squants.information.{Bytes, Information}
 
 object SearchPage {
 
-  def apply(query: Signal[Option[String]], send: Observer[Command.Search], receive: EventStream[Event.SearchResults]) = {
+  def apply(query: Signal[Option[String]], request: String => Unit, results: Signal[Option[Event.SearchResults]]) = {
 
     val searchTermVar = Var(initial = "")
 
-    val resultSignal = query.combineWith(receive.startWithNone)
+    val resultSignal = query.combineWith(results)
 
     val isLoading = resultSignal.map {
       case (Some(query), Some(results)) => query != results.query
@@ -25,7 +25,7 @@ object SearchPage {
       div(
         onMountCallback { ctx =>
           query.foreach {
-            case Some(v) => send.onNext(Command.Search(v))
+            case Some(v) => request(v)
             case None =>
           }(ctx.owner)
         },
