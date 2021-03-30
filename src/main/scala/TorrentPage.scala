@@ -52,8 +52,8 @@ object TorrentPage {
                       ),
                       p(cls := "buttons mb-0",
                         a(cls := "button is-small is-light",
-                          target := "_blank",
                           href := videoUrl(index),
+                          download := "",
                           "Download"
                         )
                       )
@@ -87,6 +87,7 @@ object TorrentPage {
   private case class ActiveFile(name: String, src: String)
 
   private val controls = customProp("controls", StringAsIsCodec)
+  private val download = customProp("download", StringAsIsCodec)
 
   private def openModal(activeFile: ActiveFile, close: Observer[Any]) = {
     val ext = activeFile.name.split('.').lastOption
