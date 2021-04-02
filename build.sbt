@@ -4,9 +4,6 @@ import org.scalajs.linker.interface.ModuleInitializer
 val webapp = project
   .in(file("."))
   .settings(
-    version := "1-SNAPSHOT",
-    organization := "com.github.lavrov",
-    scalaVersion := "2.13.5",
     libraryDependencies ++= List(
       "com.raquo" %%% "laminar" % "0.12.1",
       "com.raquo" %%% "waypoint" % "0.3.0",
@@ -18,15 +15,28 @@ val webapp = project
     libraryDependencies ++= List(
       "com.github.torrentdam" %%% "protocol" % "0.5.0",
     ),
-    externalResolvers ++= List(
-      "server packages" at "https://maven.pkg.github.com/TorrentDam/server",
-      "bittorrent packages" at "https://maven.pkg.github.com/TorrentDam/bittorrent",
-    ),
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     scalaJSModuleInitializers in Compile ++= List(
       ModuleInitializer.mainMethod("default.Main", "init").withModuleID("main"),
+    )
+  )
+  .settings(commonSettings)
+  .enablePlugins(ScalaJSPlugin)
+  .aggregate(sw)
+
+lazy val sw = project
+  .settings(
+    scalaJSModuleInitializers in Compile ++= List(
       ModuleInitializer.mainMethod("default.ServiceWorker", "init").withModuleID("sw"),
     )
   )
+  .settings(commonSettings)
   .enablePlugins(ScalaJSPlugin)
 
+lazy val commonSettings = List(
+  organization := "com.github.lavrov",
+  scalaVersion := "2.13.5",
+  externalResolvers ++= List(
+    "server packages" at "https://maven.pkg.github.com/TorrentDam/server",
+    "bittorrent packages" at "https://maven.pkg.github.com/TorrentDam/bittorrent",
+  )
+)
