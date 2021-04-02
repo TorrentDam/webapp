@@ -7,10 +7,11 @@ import com.raquo.laminar.api.L._
 import com.raquo.waypoint.SplitRender
 import io.laminext.websocket._
 import pages.{SearchPage, TorrentPage}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main {
 
-  def main(args: Array[String]): Unit = {
+  def init(): Unit = {
 
     val ws = WebSocket
       .url("wss://bittorrent-server.herokuapp.com/ws")
@@ -63,6 +64,18 @@ object Main {
     val containerNode = dom.document.querySelector("#root")
 
     render(containerNode, rootElement)
+    registerServiceWorker()
+  }
+
+  def registerServiceWorker(): Unit = {
+    import dom.experimental.serviceworkers._
+
+    dom.window.navigator.serviceWorker
+      .register("/sw.js")
+      .toFuture
+      .map { _ =>
+        dom.console.log("ServiceWorker registered")
+      }
   }
 
   def stringToEvent(value: String): Either[Throwable, Event] = Right(upickle.default.read[Event](value))

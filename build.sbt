@@ -1,3 +1,4 @@
+import org.scalajs.linker.interface.ModuleInitializer
 
 
 val webapp = project
@@ -21,7 +22,11 @@ val webapp = project
       "server packages" at "https://maven.pkg.github.com/TorrentDam/server",
       "bittorrent packages" at "https://maven.pkg.github.com/TorrentDam/bittorrent",
     ),
-    scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    scalaJSModuleInitializers in Compile ++= List(
+      ModuleInitializer.mainMethod("default.Main", "init").withModuleID("main"),
+      ModuleInitializer.mainMethod("default.ServiceWorker", "init").withModuleID("sw"),
+    )
   )
   .enablePlugins(ScalaJSPlugin)
 
