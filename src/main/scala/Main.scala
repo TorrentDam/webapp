@@ -6,6 +6,7 @@ import org.scalajs.dom
 import com.raquo.laminar.api.L._
 import com.raquo.waypoint.SplitRender
 import io.laminext.websocket._
+import pages.{SearchPage, TorrentPage}
 
 object Main {
 

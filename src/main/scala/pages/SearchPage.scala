@@ -1,10 +1,10 @@
-package default
+package pages
 
-import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
-import com.raquo.airstream.core.{EventStream, Observer}
+import com.github.lavrov.bittorrent.app.protocol.Event
 import com.raquo.laminar.api.L._
+import default.Routing
 import squants.experimental.formatter.Formatters.InformationMetricFormatter
-import squants.information.{Bytes, Information}
+import squants.information.Bytes
 
 
 object SearchPage {

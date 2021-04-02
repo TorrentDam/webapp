@@ -1,12 +1,10 @@
-package default
+package pages
 
 import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L._
-import com.raquo.laminar.nodes.{ReactiveElement, ReactiveHtmlElement}
-
-import scala.util.chaining.scalaUtilChainingOps
+import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 
 object TorrentPage {
