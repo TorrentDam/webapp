@@ -1,9 +1,11 @@
 webapp
 ======
 
-Compile
+Development
 
-    sbt fastLinkJS
+    sbt ~fastLinkJS
+    npm install
+    npx snowpack dev
 
 Build gh-pages dist
 
