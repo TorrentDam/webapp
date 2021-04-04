@@ -1,8 +1,10 @@
 package pages
 
+import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.Event
 import com.raquo.laminar.api.L._
 import default.Routing
+import scodec.bits.ByteVector
 import squants.experimental.formatter.Formatters.InformationMetricFormatter
 import squants.information.Bytes
 
@@ -21,6 +23,10 @@ object SearchPage {
       case _ => false
     }
 
+    val infoHashSignal = searchTermVar.signal.map { term =>
+      InfoHash.fromString.lift(term)
+    }
+
     section(cls := "section",
       div(
         onMountCallback { ctx =>
@@ -32,10 +38,14 @@ object SearchPage {
         cls := "container is-max-desktop",
         form(cls := "block",
           onSubmit.preventDefault --> { _ =>
-            val value = PartialFunction.condOpt(searchTermVar.now()) {
-              case str if str.nonEmpty => str
+            searchTermVar.now() match {
+              case InfoHash.fromString(infoHash) =>
+                Routing.router.pushState(Routing.Page.Torrent(infoHash))
+              case str if str.nonEmpty =>
+                Routing.router.pushState(Routing.Page.Root(Some(str)))
+              case _ =>
+                Routing.router.pushState(Routing.Page.Root(None))
             }
-            Routing.router.pushState(Routing.Page.Root(value))
           },
           div(cls := "field has-addons",
             div(cls := "control is-large is-expanded", cls.toggle("is-loading") <-- isLoading,
@@ -48,7 +58,12 @@ object SearchPage {
               )
             ),
             div(cls := "control is-hidden-mobile",
-              button(cls := "button is-primary is-large", "Go")
+              button(cls := "button is-primary is-large",
+                child <-- infoHashSignal.map {
+                  case Some(_) => "Open"
+                  case None => "Go"
+                }
+              )
             )
           )
         ),
