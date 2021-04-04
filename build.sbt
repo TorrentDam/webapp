@@ -25,6 +25,9 @@ val webapp = project
 
 lazy val sw = project
   .settings(
+    libraryDependencies ++= List(
+      "org.scala-js" %%% "scalajs-dom" % "1.1.0",
+    ),
     scalaJSModuleInitializers in Compile ++= List(
       ModuleInitializer.mainMethod("default.ServiceWorker", "init").withModuleID("sw"),
     )
