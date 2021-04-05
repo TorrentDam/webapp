@@ -35,7 +35,7 @@ object TorrentPage {
                 onMountCallback(_ => loadingVar.set(false)),
                 metadata.name
               ),
-              nav(cls := "level",
+              nav(cls := "level is-mobile",
                 div(cls := "level-left",
                   div(cls := "level-item has-text-centered mr-6",
                     div(
@@ -67,7 +67,9 @@ object TorrentPage {
                           onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
                         )
                       ),
-                      p(cls := "buttons mb-0",
+                    ),
+                    div(cls := "media-right",
+                      p(cls := "buttons",
                         a(cls := "button is-small is-light",
                           href := videoUrl(index),
                           download := "",
