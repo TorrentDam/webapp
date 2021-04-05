@@ -5,6 +5,8 @@ import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L._
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import squants.experimental.formatter.Formatters.InformationMetricFormatter
+import squants.information.Bytes
 
 
 object TorrentPage {
@@ -32,6 +34,23 @@ object TorrentPage {
               h4(cls := "title is-4",
                 onMountCallback(_ => loadingVar.set(false)),
                 metadata.name
+              ),
+              nav(cls := "level",
+                div(cls := "level-left",
+                  div(cls := "level-item has-text-centered mr-6",
+                    div(
+                      p(cls := "heading", "Files"),
+                      p(cls := "subtitle", metadata.files.size)
+                    )
+                  ),
+                  div(cls := "level-item has-text-centered",
+                    div(
+                      p(cls := "heading", "Size"),
+                      p(cls := "subtitle", renderBytes(metadata.files.map(_.size).sum))
+                    )
+                  )
+                ),
+                div(cls := "level-right")
               ),
               div(cls := "tabs",
                 ul(
@@ -166,4 +185,8 @@ object TorrentPage {
       )
     )
   }
+
+  private def renderBytes(bytes: Long) ={
+    InformationMetricFormatter.inBestUnit(Bytes(bytes)).rounded(1).toString
+}
 }
