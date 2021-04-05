@@ -15,7 +15,7 @@ val webapp = project
     libraryDependencies ++= List(
       "com.github.torrentdam" %%% "protocol" % "0.5.0",
     ),
-    scalaJSModuleInitializers in Compile ++= List(
+    Compile / scalaJSModuleInitializers ++= List(
       ModuleInitializer.mainMethod("default.Main", "init").withModuleID("main"),
     )
   )
@@ -28,7 +28,7 @@ lazy val sw = project
     libraryDependencies ++= List(
       "org.scala-js" %%% "scalajs-dom" % "1.1.0",
     ),
-    scalaJSModuleInitializers in Compile ++= List(
+    Compile / scalaJSModuleInitializers ++= List(
       ModuleInitializer.mainMethod("default.ServiceWorker", "init").withModuleID("sw"),
     )
   )
