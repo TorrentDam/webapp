@@ -30,13 +30,10 @@ object Main {
       case _ =>
     }(new ManualOwner)
 
-    def requestSearch(query: String): Unit = {
-      println(s"Requested: $query")
-      searchCache.now().get(query) match {
+    def requestSearch(query: String): Unit =
+      searchCache.now().get(query) match
         case Some(results) => searchResultsVar.set(Some(results))
         case None => ws.sendOne(Command.Search(query))
-      }
-    }
 
     val rootElement =
       div(
@@ -70,7 +67,8 @@ object Main {
   def registerServiceWorker(): Unit = {
     import dom.experimental.serviceworkers._
 
-    dom.window.navigator.serviceWorker
+    dom.window.navigator
+      .serviceWorker
       .register("/sw.js")
       .toFuture
       .map { _ =>

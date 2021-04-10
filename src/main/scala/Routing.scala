@@ -10,14 +10,16 @@ import urldsl.vocabulary.{FromString, Printer}
 
 object Routing {
 
-  sealed trait Page
-  object Page {
-    case class Root(query: Option[String]) extends Page
-    case class Torrent(infoHash: InfoHash) extends Page
+  enum Page:
+    case Root(query: Option[String])
+    case Torrent(infoHash: InfoHash)
+
+  object Page:
 
     def toString(page: Page): String =
       page match
-        case Root(query) => s"/?query=$query"
+        case Root(None) => "/"
+        case Root(Some(query)) => s"/?query=$query"
         case Torrent(infoHash) => s"/torrent/$infoHash"
 
     def fromString(string: String): Page =
@@ -25,17 +27,18 @@ object Routing {
         case s"/" => Root(None)
         case s"/?query=$query" => Root(Some(query))
         case s"/torrent/${InfoHash.fromString(infoHash)}" => Torrent(infoHash)
-  }
+
+  end Page
 
   val appPathRoot = root
 
-  implicit val infoHashFromString: FromString[InfoHash, DummyError] =
+  given FromString[InfoHash, DummyError] =
     FromString
       .factory(InfoHash.fromString.lift.andThen(_.toRight(DummyError.dummyError)))
 
-  implicit val infoHashPrinter: Printer[InfoHash] = Printer.factory(_.toString)
+  given Printer[InfoHash] = Printer.factory(_.toString)
 
-  val router = new Router[Page](
+  val router = Router[Page](
     routes = List(
       Route.onlyQuery[Page.Root, List[String]](
         _.query.toList,
