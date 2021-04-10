@@ -5,15 +5,13 @@ val webapp = project
   .in(file("."))
   .settings(
     libraryDependencies ++= List(
-      "com.raquo" %%% "laminar" % "0.12.1",
-      "com.raquo" %%% "waypoint" % "0.3.0",
-      "io.laminext" %%% "websocket" % "0.12.1",
-      "io.laminext" %%% "websocket-circe" % "0.12.1",
-      "com.lihaoyi" %%% "upickle" % "1.3.8",
-      "org.typelevel" %%% "squants" % "1.6.0",
+      "com.raquo" %%% "laminar" % "0.13.0-M1",
+      "com.raquo" %%% "waypoint" % "0.4.0-M2",
+      "io.laminext" %%% "websocket" % "0.13.0-M1",
+      ("org.typelevel" %%% "squants" % "1.6.0").cross(CrossVersion.for3Use2_13),
     ),
     libraryDependencies ++= List(
-      "com.github.torrentdam" %%% "protocol" % "0.5.0",
+      ("com.github.torrentdam" %%% "protocol" % "0.5.0").cross(CrossVersion.for3Use2_13),
     ),
     Compile / scalaJSModuleInitializers ++= List(
       ModuleInitializer.mainMethod("default.Main", "init").withModuleID("main"),
@@ -26,7 +24,7 @@ val webapp = project
 lazy val sw = project
   .settings(
     libraryDependencies ++= List(
-      "org.scala-js" %%% "scalajs-dom" % "1.1.0",
+      ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13),
     ),
     Compile / scalaJSModuleInitializers ++= List(
       ModuleInitializer.mainMethod("default.ServiceWorker", "init").withModuleID("sw"),
@@ -37,7 +35,7 @@ lazy val sw = project
 
 lazy val commonSettings = List(
   organization := "com.github.lavrov",
-  scalaVersion := "2.13.5",
+  scalaVersion := "3.0.0-RC2",
   externalResolvers ++= List(
     "server packages" at "https://maven.pkg.github.com/TorrentDam/server",
     "bittorrent packages" at "https://maven.pkg.github.com/TorrentDam/bittorrent",

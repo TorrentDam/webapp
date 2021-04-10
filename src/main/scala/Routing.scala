@@ -6,7 +6,6 @@ import com.raquo.laminar.api.L
 import upickle.default._
 import urldsl.errors.DummyError
 import urldsl.vocabulary.{FromString, Printer}
-import com.github.lavrov.bittorrent.app.protocol.CommonFormats.infoHashRW
 
 
 object Routing {
@@ -15,11 +14,18 @@ object Routing {
   object Page {
     case class Root(query: Option[String]) extends Page
     case class Torrent(infoHash: InfoHash) extends Page
-  }
 
-  implicit val rootPageRW: ReadWriter[Page.Root] = macroRW
-  implicit val torrentPageRW: ReadWriter[Page.Torrent] = macroRW
-  implicit val pageRW: ReadWriter[Page] = macroRW
+    def toString(page: Page): String =
+      page match
+        case Root(query) => s"/?query=$query"
+        case Torrent(infoHash) => s"/torrent/$infoHash"
+
+    def fromString(string: String): Page =
+      string match
+        case s"/" => Root(None)
+        case s"/?query=$query" => Root(Some(query))
+        case s"/torrent/${InfoHash.fromString(infoHash)}" => Torrent(infoHash)
+  }
 
   val appPathRoot = root
 
@@ -43,8 +49,8 @@ object Routing {
       )
     ),
     getPageTitle = _.toString,
-    serializePage = page => write(page)(pageRW),
-    deserializePage = pageStr => read(pageStr)(pageRW),
+    serializePage = page => Page.toString(page),
+    deserializePage = pageStr => Page.fromString(pageStr),
     routeFallback = _ => Page.Root(None),
     deserializeFallback = _ => Page.Root(None),
   )(
