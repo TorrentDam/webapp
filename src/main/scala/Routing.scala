@@ -51,7 +51,7 @@ object Routing {
         pattern = appPathRoot / "torrent" / segment[InfoHash] / endOfSegments
       )
     ),
-    getPageTitle = _.toString,
+    getPageTitle = _ => "TorrentDam",
     serializePage = page => Page.toString(page),
     deserializePage = pageStr => Page.fromString(pageStr),
     routeFallback = _ => Page.Root(None),
