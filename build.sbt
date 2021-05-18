@@ -5,9 +5,9 @@ val webapp = project
   .in(file("."))
   .settings(
     libraryDependencies ++= List(
-      "com.raquo" %%% "laminar" % "0.13.0-M1",
-      "com.raquo" %%% "waypoint" % "0.4.0-M2",
-      "io.laminext" %%% "websocket" % "0.13.0-M1",
+      "com.raquo" %%% "laminar" % "0.13.0",
+      "com.raquo" %%% "waypoint" % "0.4.0",
+      "io.laminext" %%% "websocket" % "0.13.1",
       ("org.typelevel" %%% "squants" % "1.6.0").cross(CrossVersion.for3Use2_13),
     ),
     libraryDependencies ++= List(
@@ -35,7 +35,7 @@ lazy val sw = project
 
 lazy val commonSettings = List(
   organization := "com.github.lavrov",
-  scalaVersion := "3.0.0-RC2",
+  scalaVersion := "3.0.0",
   externalResolvers ++= List(
     "server packages" at "https://maven.pkg.github.com/TorrentDam/server",
     "bittorrent packages" at "https://maven.pkg.github.com/TorrentDam/bittorrent",
