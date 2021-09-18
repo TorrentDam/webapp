@@ -8,6 +8,8 @@ val webapp = project
       "com.raquo" %%% "laminar" % "0.13.1",
       "com.raquo" %%% "waypoint" % "0.4.0",
       "io.laminext" %%% "websocket" % "0.13.1",
+      "io.circe" %%% "circe-parser" % "0.15.0-M1",
+      "io.circe" %%% "circe-generic" % "0.15.0-M1",
       ("org.typelevel" %%% "squants" % "1.6.0").cross(CrossVersion.for3Use2_13),
     ),
     libraryDependencies ++= List(

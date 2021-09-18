@@ -7,12 +7,13 @@ import default.Routing
 import scodec.bits.ByteVector
 import squants.experimental.formatter.Formatters.InformationMetricFormatter
 import squants.information.Bytes
+import default.TorrentIndex
 
 
 def SearchPage(
   query: Signal[Option[String]],
   request: String => Unit,
-  results: Signal[Option[Event.SearchResults]]
+  results: Signal[Option[TorrentIndex.Results]]
 ) =
   val searchTermVar = Var(initial = "")
 

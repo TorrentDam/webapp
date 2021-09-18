@@ -4,5 +4,7 @@ target
 .metals
 .bloop
 .bsp
+.vscode
 node_modules
 package-lock.json
+project/.metals.sbt

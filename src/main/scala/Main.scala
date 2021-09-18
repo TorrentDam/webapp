@@ -3,11 +3,13 @@ package default
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import com.raquo.airstream.ownership.ManualOwner
 import org.scalajs.dom
-import com.raquo.laminar.api.L._
+import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.SplitRender
-import io.laminext.websocket._
+import io.laminext.websocket.*
 import pages.{SearchPage, TorrentPage}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.chaining.*
+import org.scalajs.dom.experimental.Fetch
 
 object Main {
 
@@ -19,21 +21,25 @@ object Main {
       .sendText(commandToString)
       .build(managed = true, autoReconnect = true)
 
-    val searchCache = Var(Map.empty[String, Event.SearchResults])
+    val indexVar = Var[Option[TorrentIndex]](None).tap { it =>
+      val url = "https://raw.githubusercontent.com/TorrentDam/torrents/master/index/index.json"
+      for
+        response <- Fetch.fetch(url).toFuture
+        body <- response.text.toFuture
+      do
+        val entries = TorrentIndex.Entries.fromString(body).toTry.get
+        val index = TorrentIndex(entries)
+        it.set(Some(index))
+    }
 
-    val searchResultsVar = Var(Option.empty[Event.SearchResults])
-
-    ws.received.foreach {
-      case results: Event.SearchResults =>
-        searchCache.update(_.updated(results.query, results))
-        searchResultsVar.set(Some(results))
-      case _ =>
-    }(new ManualOwner)
+    val searchResultsVar = Var(Option.empty[TorrentIndex.Results])
 
     def requestSearch(query: String): Unit =
-      searchCache.now().get(query) match
-        case Some(results) => searchResultsVar.set(Some(results))
-        case None => ws.sendOne(Command.Search(query))
+      indexVar.now() match
+        case Some(index) =>
+          val results = index.search(query)
+          searchResultsVar.set(Some(results))
+        case None =>
 
     val rootElement =
       div(
