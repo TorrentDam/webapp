@@ -13,7 +13,7 @@ val webapp = project
       ("org.typelevel" %%% "squants" % "1.6.0").cross(CrossVersion.for3Use2_13),
     ),
     libraryDependencies ++= List(
-      "com.github.torrentdam.server" %%% "protocol" % "1.0.0",
+      "com.github.torrentdam.server" %%% "protocol" % "1.0.1",
     ),
     Compile / scalaJSModuleInitializers ++= List(
       ModuleInitializer.mainMethod("default.Main", "init").withModuleID("main"),
