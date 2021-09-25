@@ -13,7 +13,7 @@ val webapp = project
       ("org.typelevel" %%% "squants" % "1.6.0").cross(CrossVersion.for3Use2_13),
     ),
     libraryDependencies ++= List(
-      ("com.github.torrentdam" %%% "protocol" % "0.5.0").cross(CrossVersion.for3Use2_13),
+      "com.github.torrentdam.server" %%% "protocol" % "1.0.0",
     ),
     Compile / scalaJSModuleInitializers ++= List(
       ModuleInitializer.mainMethod("default.Main", "init").withModuleID("main"),
@@ -39,7 +39,7 @@ lazy val commonSettings = List(
   organization := "com.github.lavrov",
   scalaVersion := "3.0.1",
   externalResolvers ++= List(
-    "server packages" at "https://maven.pkg.github.com/TorrentDam/server",
-    "bittorrent packages" at "https://maven.pkg.github.com/TorrentDam/bittorrent",
+    "server packages" at "https://maven.pkg.github.com/TorrentDamDev/server",
+    "bittorrent packages" at "https://maven.pkg.github.com/TorrentDamDev/bittorrent",
   )
 )
