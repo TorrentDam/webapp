@@ -20,11 +20,11 @@ object Main {
       .sendText(commandToString)
       .build(managed = true, autoReconnect = true)
 
-    val activeServiceWorker = EventStream
-      .fromJsPromise(
-        dom.window.navigator.serviceWorker.ready
-      )
-      .map(_.active)
+    // val activeServiceWorker = EventStream
+    //   .fromJsPromise(
+    //     dom.window.navigator.serviceWorker.ready
+    //   )
+    //   .map(_.active)
 
     val searchResultsVar = Var(Option.empty[TorrentIndex.Results])
 
