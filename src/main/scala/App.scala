@@ -18,9 +18,15 @@ def App(isIndexReady: Signal[Boolean], modifiers: Modifier[Div]*) =
           div(className := "navbar-item",
           child <-- isIndexReady.map {
               case true =>
-                span(className := "icon has-text-success", i(className := "fas fa-check"))
+                span(className := "icon has-text-success",
+                  title := "Index is up to date",
+                  i(className := "fas fa-check")
+                )
               case false =>
-                span(className := "icon has-text-info index-refresh-icon", i(className := "fas fa-arrow-down"))
+                span(className := "icon has-text-info index-refresh-icon",
+                  title := "Refreshing index",
+                  i(className := "fas fa-arrow-down")
+                )
             }
           )
         )
