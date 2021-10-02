@@ -1,8 +1,10 @@
 import org.scalajs.linker.interface.ModuleInitializer
 
-
-val webapp = project
+lazy val webapp = project
   .in(file("."))
+  .aggregate(app, sw)
+
+lazy val app = project
   .dependsOn(shared)
   .settings(
     libraryDependencies ++= List(
@@ -20,7 +22,6 @@ val webapp = project
   )
   .settings(commonSettings)
   .enablePlugins(ScalaJSPlugin)
-  .aggregate(sw)
 
 lazy val sw = project
   .dependsOn(shared)
