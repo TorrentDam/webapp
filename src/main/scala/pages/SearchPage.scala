@@ -7,17 +7,25 @@ import default.Routing
 import scodec.bits.ByteVector
 import squants.experimental.formatter.Formatters.InformationMetricFormatter
 import squants.information.Bytes
-import default.TorrentIndex
+import default.SearchService
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 def SearchPage(
   query: Signal[Option[String]],
-  request: String => Unit,
-  results: Signal[Option[TorrentIndex.Results]]
+  searchService: StrictSignal[Option[SearchService]]
 ) =
   val searchTermVar = Var(initial = "")
+  val resultsVar = Var(Option.empty[SearchService.Results])
 
-  val resultSignal = query.combineWith(results)
+  val resultSignal = query.combineWith(resultsVar.signal)
+
+  def fireSearch(query: String): Unit =
+    searchService.now() match
+      case Some(searchService) =>
+        searchService.search(query).foreach(r => resultsVar.set(Some(r)))
+      case None =>
 
   val isLoading = resultSignal.map {
     case (Some(query), Some(results)) => query != results.query
@@ -32,9 +40,10 @@ def SearchPage(
   section(cls := "section",
     div(
       onMountCallback { ctx =>
-        query.foreach {
-          case Some(v) => request(v)
-          case None =>
+        query.combineWith(searchService).foreach {
+          case (Some(query), Some(searchService)) =>
+            searchService.search(query).foreach(r => resultsVar.set(Some(r)))
+          case _ =>
         }(ctx.owner)
       },
       cls := "container is-max-desktop",

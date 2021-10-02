@@ -15,6 +15,7 @@ import scala.scalajs.js.Dynamic
 import scala.scalajs.js.Dynamic.{literal as obj}
 import scala.scalajs.js.JSConverters.*
 import io.circe.syntax.EncoderOps
+import io.circe.parser
 import org.scalajs.dom.raw.IDBFactory
 import org.scalajs.dom.raw.IDBDatabase
 import scala.concurrent.Promise
@@ -84,9 +85,9 @@ object ServiceWorker {
 
     self.onmessage = (event) =>
       val source = event.source
-      val query = event.data.asInstanceOf[String]
-      console.log("ServiceWorker: message")
-      console.log(s"Search: $query")
+      val message = parser.parse(event.data.asInstanceOf[String]).flatMap(_.as[ServiceWorkerMessage]).toOption.get
+      console.log(s"ServiceWorker: $message")
+      val ServiceWorkerMessage.Query(query) = message
       for
         store <- torrentsStore
       do
@@ -97,21 +98,19 @@ object ServiceWorker {
           val cursor = (event.target.asInstanceOf[Dynamic]).result.asInstanceOf[IDBCursor]
           if(cursor != null && list.size < 10) then
             if cursor.key.asInstanceOf[String].toLowerCase.contains(query) then
-              console.log(s"Cursor: ${cursor.primaryKey}")
               val pk = cursor.primaryKey.asInstanceOf[String]
               list = pk :: list
             cursor.continue()
           else
             complete.success(())
         def get(pk: String) =
-          console.log(s"getting: $pk")
-          val promise = Promise[TorrentIndex.Entry]
+          val promise = Promise[WindowMessage.SearchResults.Entry]
           store.get(pk).onsuccess = (event) =>
             val value = (event.target.asInstanceOf[Dynamic]).result.asInstanceOf[js.Object]
             val str = js.JSON.stringify(value)
             for
               json <- io.circe.parser.parse(str)
-              entry <- json.as[TorrentIndex.Entry]
+              entry <- json.as[WindowMessage.SearchResults.Entry]
             do
               promise.success(entry)
           promise.future
@@ -120,6 +119,6 @@ object ServiceWorker {
           _ <- complete.future
           entries <- Future.traverse(list.reverse)(pk => get(pk))
         do
-          val results = TorrentIndex.Results(query, entries)
+          val results = WindowMessage.SearchResults(query, entries)
           source.postMessage(results.asJson.noSpaces, null)
 }
