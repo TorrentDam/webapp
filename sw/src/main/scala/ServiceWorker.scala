@@ -88,6 +88,7 @@ object ServiceWorker {
       val message = parser.parse(event.data.asInstanceOf[String]).flatMap(_.as[ServiceWorkerMessage]).toOption.get
       console.log(s"ServiceWorker: $message")
       val ServiceWorkerMessage.Query(query) = message
+      val words = query.toLowerCase.split(" ")
       for
         store <- torrentsStore
       do
@@ -97,7 +98,8 @@ object ServiceWorker {
         c.onsuccess = (event) =>
           val cursor = (event.target.asInstanceOf[Dynamic]).result.asInstanceOf[IDBCursor]
           if(cursor != null && list.size < 10) then
-            if cursor.key.asInstanceOf[String].toLowerCase.contains(query) then
+            val name = cursor.key.asInstanceOf[String]
+            if words.forall(name.contains) then
               val pk = cursor.primaryKey.asInstanceOf[String]
               list = pk :: list
             cursor.continue()
