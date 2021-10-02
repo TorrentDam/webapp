@@ -12,6 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import dom.experimental.serviceworkers._
 
 import util.chaining.scalaUtilChainingOps
+import com.raquo.laminar.nodes.ReactiveElement
 
 object Main {
 
@@ -23,12 +24,6 @@ object Main {
       .sendText(commandToString)
       .build(managed = true, autoReconnect = true)
 
-    val activeServiceWorker = EventStream
-      .fromJsPromise(
-        dom.window.navigator.serviceWorker.ready
-      )
-      .map(_.active)
-
     val searchServiceVar = Var(Option.empty[SearchService]).tap { it =>
       if dom.window.navigator.serviceWorker != null then
         console.log("ServiceWorker support: ok")
@@ -38,7 +33,8 @@ object Main {
     }
 
     val rootElement =
-      div(
+      App(
+        searchServiceVar.signal.map(_.isDefined),
         ws.connect,
         child <-- SplitRender[Routing.Page, HtmlElement](Routing.router.$currentPage)
           .collectSignal[Routing.Page.Root] { $page =>
