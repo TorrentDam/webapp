@@ -4,26 +4,26 @@ package default
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
-def App(isRefreshing: Signal[Boolean], modifiers: Modifier[Div]*) =
+def App(isIndexReady: Signal[Boolean], modifiers: Modifier[Div]*) =
   div(
     nav(className := "navbar has-shadow is-spaced",
       div(className := "container",
         div(className := "navbar-brand",
           a(className := "navbar-item", href := "https://torrentdam.github.io/",
-            img(src := "/images/windmill.svg", width := "28", height := "48"),
+            img(className := "logo", src := "/images/windmill.svg"),
             span(className := "title", "TorrentDam")
           )
         )
       ),
       div(className := "navbar-end",
-        child <-- isRefreshing.map {
-          case true =>
-            emptyNode
-          case false =>
-            div(className := "navbar-item",
-              "Downloading index"
-            )
-        }
+        div(className := "navbar-item",
+        child <-- isIndexReady.map {
+            case true =>
+              "Index ready"
+            case false =>
+              ""
+          }
+        )
       )
     )
   ).amend(modifiers)

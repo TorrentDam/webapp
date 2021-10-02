@@ -1,1 +1,7 @@
 @import 'bulma/css/bulma.css';
+
+.navbar
+.logo {
+    width: 28px;
+    height: 48px;
+}

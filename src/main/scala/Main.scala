@@ -1,5 +1,6 @@
 package default
 
+import scala.scalajs.js
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import com.raquo.airstream.ownership.ManualOwner
 import org.scalajs.dom
@@ -25,7 +26,7 @@ object Main {
       .build(managed = true, autoReconnect = true)
 
     val searchServiceVar = Var(Option.empty[SearchService]).tap { it =>
-      if dom.window.navigator.serviceWorker != null then
+      if !js.isUndefined(dom.window.navigator.serviceWorker) then
         console.log("ServiceWorker support: ok")
         SearchService
           .serviceWorkerBased(dom.window.navigator.serviceWorker)
