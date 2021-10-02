@@ -3,6 +3,7 @@
     "snowpack": "^3.2.2"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "bulma": "^0.9.3"
   }
 }

@@ -14,10 +14,17 @@ import dom.experimental.serviceworkers._
 
 import util.chaining.scalaUtilChainingOps
 import com.raquo.laminar.nodes.ReactiveElement
+import scala.scalajs.js.annotation.JSImport
 
 object Main {
 
+  @js.native
+  @JSImport("@fortawesome/fontawesome-free/js/all", JSImport.Default)
+  val fontawesome: js.Object = js.native
+
   def init(): Unit = {
+
+    val _ = fontawesome
 
     val ws = WebSocket
       .url("wss://bittorrent-server.herokuapp.com/ws")

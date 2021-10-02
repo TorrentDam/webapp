@@ -53,5 +53,6 @@ lazy val commonSettings = List(
   externalResolvers ++= List(
     "server packages" at "https://maven.pkg.github.com/TorrentDamDev/server",
     "bittorrent packages" at "https://maven.pkg.github.com/TorrentDamDev/bittorrent",
-  )
+  ),
+  scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
 )
