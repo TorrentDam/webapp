@@ -23,9 +23,11 @@ def App(isIndexReady: Signal[Boolean], modifiers: Modifier[Div]*) =
                   i(className := "fas fa-check")
                 )
               case false =>
-                span(className := "icon has-text-info index-refresh-icon",
-                  title := "Refreshing index",
-                  i(className := "fas fa-arrow-down")
+                span(className := "icon-text",
+                  span(className := "icon has-text-info index-refresh-icon",
+                    i(className := "fas fa-arrow-down")
+                  ),
+                  span("Downloading index")
                 )
             }
           )
