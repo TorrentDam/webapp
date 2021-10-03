@@ -4,7 +4,7 @@ package default
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
-def App(isIndexReady: Signal[Boolean], modifiers: Modifier[Div]*) =
+def App(indexStatus: IndexStatus, modifiers: Modifier[Div]*) =
   div(
     nav(className := "navbar has-shadow is-spaced",
       div(className := "container",
@@ -17,19 +17,22 @@ def App(isIndexReady: Signal[Boolean], modifiers: Modifier[Div]*) =
         div(className := "navbar-menu",
           div(className := "navbar-end",
             div(className := "navbar-item",
-              child <-- isIndexReady.map {
-                case true =>
-                  span(className := "icon has-text-success",
-                    title := "Index is up to date",
-                    i(className := "fas fa-check")
-                  )
-                case false =>
-                  span(className := "icon-text",
-                    span(className := "icon has-text-info index-refresh-icon",
-                      i(className := "fas fa-arrow-down")
-                    ),
-                    span("Downloading index")
-                  )
+              child <-- indexStatus.match {
+                case IndexStatus.NotSupported =>
+                  Signal.fromValue(emptyNode)
+                case IndexStatus.Supported(ready) =>
+                  ready.map {
+                    case true =>
+                      span(className := "icon has-text-success",
+                        title := "Index is up to date",
+                        i(className := "fas fa-check")
+                      )
+                    case false =>
+                      span(className := "icon has-text-info index-refresh-icon",
+                        title := "Downlaoding index",
+                        i(className := "fas fa-arrow-down")
+                      )
+                  }
               }
             )
           )
@@ -37,3 +40,8 @@ def App(isIndexReady: Signal[Boolean], modifiers: Modifier[Div]*) =
       )
     )
   ).amend(modifiers)
+
+enum IndexStatus {
+  case NotSupported
+  case Supported(ready: Signal[Boolean])
+}

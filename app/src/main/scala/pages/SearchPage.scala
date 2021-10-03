@@ -14,18 +14,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 def SearchPage(
   query: Signal[Option[String]],
-  searchService: StrictSignal[Option[SearchService]]
+  searchService: Signal[Option[SearchService]]
 ) =
   val searchTermVar = Var(initial = "")
   val resultsVar = Var(Option.empty[SearchService.Results])
 
   val resultSignal = query.combineWith(resultsVar.signal)
-
-  def fireSearch(query: String): Unit =
-    searchService.now() match
-      case Some(searchService) =>
-        searchService.search(query).foreach(r => resultsVar.set(Some(r)))
-      case None =>
 
   val isLoading = resultSignal.map {
     case (Some(query), Some(results)) => query != results.query

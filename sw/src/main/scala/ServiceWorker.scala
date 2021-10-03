@@ -30,7 +30,19 @@ object ServiceWorker {
 
     val idb = scala.scalajs.js.Dynamic.global.indexedDB.asInstanceOf[IDBFactory]
 
-    val database = Promise[IDBDatabase]
+    val database = Promise[IDBDatabase].tap { it =>
+      idb.open("index").tap { request =>
+        request.onupgradeneeded = (event) =>
+          console.log("Upgrading database")
+          val db = (event.target.asInstanceOf[Dynamic]).result.asInstanceOf[IDBDatabase]
+          val store = db.createObjectStore("torrents", obj(keyPath = "infoHash"))
+          store.createIndex("name", "name", obj(unique = false))
+        request.onsuccess = (event) =>
+          console.log("Open database: success")
+          val db = (event.target.asInstanceOf[Dynamic]).result.asInstanceOf[IDBDatabase]
+          it.success(db)
+      }
+    }
 
     def torrentsStore =
       for
@@ -39,20 +51,10 @@ object ServiceWorker {
         val tx = database.transaction("torrents", "readonly")
         tx.objectStore("torrents")
 
-    idb.open("index").tap { request =>
-      request.onupgradeneeded = (event) =>
-        console.log("Upgrading database")
-        val db = (event.target.asInstanceOf[Dynamic]).result.asInstanceOf[IDBDatabase]
-        val store = db.createObjectStore("torrents", obj(keyPath = "infoHash"))
-        store.createIndex("name", "name", obj(unique = false))
-      request.onsuccess = (event) =>
-        console.log("Open database: success")
-        val db = (event.target.asInstanceOf[Dynamic]).result.asInstanceOf[IDBDatabase]
-        database.success(db)
-    }
 
     self.oninstall = (event) =>
       console.log("ServiceWorker: install")
+
       val indexJson =
         val url = "https://raw.githubusercontent.com/TorrentDam/torrents/master/index/index.json"
         console.log(s"Fetch $url")
@@ -62,26 +64,30 @@ object ServiceWorker {
         yield
           console.log("Fetch complete")
           body.asInstanceOf[js.Array[js.Object]]
-      val storeComplete = Promise[Any]
-      for
-        indexJson <- indexJson
-        database <- database.future
-      yield
-        val tx = database.transaction("torrents", "readwrite")
-        val store = tx.objectStore("torrents")
-        store.clear()
-        console.log("Store torrents")
-        indexJson.foreach { value =>
-          store.add(value)
-        }
-        tx.oncomplete = (event) =>
-          console.log("Store complete")
-          storeComplete.success(true)
+
+      val storeComplete = Promise[Any].tap { it =>
+        for
+          indexJson <- indexJson
+          database <- database.future
+        yield
+          val tx = database.transaction("torrents", "readwrite")
+          val store = tx.objectStore("torrents")
+          store.clear()
+          console.log("Store torrents")
+          indexJson.foreach { value =>
+            store.add(value)
+          }
+          tx.oncomplete = (event) =>
+            console.log("Store complete")
+            it.success(true)
+      }
       event.waitUntil(storeComplete.future.toJSPromise)
+
 
     self.onactivate = (event) =>
       console.log("ServiceWorker: activate")
       event.waitUntil(self.clients.claim())
+
 
     self.onmessage = (event) =>
       val source = event.source
@@ -92,10 +98,10 @@ object ServiceWorker {
       for
         store <- torrentsStore
       do
-        val c = store.index("name").openKeyCursor()
+        val request = store.index("name").openKeyCursor()
         var list = List.empty[String]
         val complete = Promise[Unit]
-        c.onsuccess = (event) =>
+        request.onsuccess = (event) =>
           val cursor = (event.target.asInstanceOf[Dynamic]).result.asInstanceOf[IDBCursor]
           if(cursor != null && list.size < 10) then
             val name = cursor.key.asInstanceOf[String]
