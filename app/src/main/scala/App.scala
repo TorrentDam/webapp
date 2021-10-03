@@ -14,22 +14,24 @@ def App(isIndexReady: Signal[Boolean], modifiers: Modifier[Div]*) =
             span(className := "title", "TorrentDam")
           )
         ),
-        div(className := "navbar-end",
-          div(className := "navbar-item",
-          child <-- isIndexReady.map {
-              case true =>
-                span(className := "icon has-text-success",
-                  title := "Index is up to date",
-                  i(className := "fas fa-check")
-                )
-              case false =>
-                span(className := "icon-text",
-                  span(className := "icon has-text-info index-refresh-icon",
-                    i(className := "fas fa-arrow-down")
-                  ),
-                  span("Downloading index")
-                )
-            }
+        div(className := "navbar-menu",
+          div(className := "navbar-end",
+            div(className := "navbar-item",
+              child <-- isIndexReady.map {
+                case true =>
+                  span(className := "icon has-text-success",
+                    title := "Index is up to date",
+                    i(className := "fas fa-check")
+                  )
+                case false =>
+                  span(className := "icon-text",
+                    span(className := "icon has-text-info index-refresh-icon",
+                      i(className := "fas fa-arrow-down")
+                    ),
+                    span("Downloading index")
+                  )
+              }
+            )
           )
         )
       )
