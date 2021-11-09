@@ -32,30 +32,13 @@ object Main {
       .sendText(commandToString)
       .build(managed = true, autoReconnect = true)
 
-    val searchService = 
-      if !js.isUndefined(dom.window.navigator.serviceWorker) then
-        console.log("ServiceWorker support: ok")
-        Some(
-          Signal
-            .fromFuture(SearchService.serviceWorkerBased(dom.window.navigator.serviceWorker)
-          )
-        )
-      else
-        None
-
-    val indexStatus = searchService match
-      case Some(signal) => IndexStatus.Supported(signal.map(_.isDefined))
-      case None => IndexStatus.NotSupported
-
     val rootElement =
       App(
-        indexStatus,
         ws.connect,
         child <-- SplitRender[Routing.Page, HtmlElement](Routing.router.$currentPage)
           .collectSignal[Routing.Page.Root] { $page =>
             SearchPage(
               $page.map(_.query),
-              searchService.getOrElse(Signal.fromValue(None))
             )
           }
           .collect[Routing.Page.Torrent] { page =>

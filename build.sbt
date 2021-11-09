@@ -40,9 +40,6 @@ lazy val shared = project
       "io.circe" %%% "circe-parser" % "0.15.0-M1",
       "io.circe" %%% "circe-generic" % "0.15.0-M1",
       ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13),
-    ),
-    Compile / scalaJSModuleInitializers ++= List(
-      ModuleInitializer.mainMethod("default.ServiceWorker", "init").withModuleID("sw"),
     )
   )
   .settings(commonSettings)
@@ -50,7 +47,7 @@ lazy val shared = project
 
 lazy val commonSettings = List(
   organization := "com.github.lavrov",
-  scalaVersion := "3.0.1",
+  scalaVersion := "3.0.2",
   externalResolvers ++= List(
     "server packages" at "https://maven.pkg.github.com/TorrentDamDev/server",
     "bittorrent packages" at "https://maven.pkg.github.com/TorrentDamDev/bittorrent",
