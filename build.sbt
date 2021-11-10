@@ -9,9 +9,9 @@ lazy val app = project
   .settings(
     libraryDependencies ++= List(
       "com.github.torrentdam.server" %%% "protocol" % "1.0.1",
-      "com.raquo" %%% "laminar" % "0.13.1",
-      "com.raquo" %%% "waypoint" % "0.4.0",
-      "io.laminext" %%% "websocket" % "0.13.1",
+      "com.raquo" %%% "laminar" % "0.14.0",
+      "com.raquo" %%% "waypoint" % "0.5.0",
+      "io.laminext" %%% "websocket" % "0.14.0",
       "io.circe" %%% "circe-parser" % "0.15.0-M1",
       "io.circe" %%% "circe-generic" % "0.15.0-M1",
       ("org.typelevel" %%% "squants" % "1.6.0").cross(CrossVersion.for3Use2_13),
@@ -39,7 +39,7 @@ lazy val shared = project
       "com.github.torrentdam" %%% "common" % "1.0.0",
       "io.circe" %%% "circe-parser" % "0.15.0-M1",
       "io.circe" %%% "circe-generic" % "0.15.0-M1",
-      ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13),
+      ("org.scala-js" %%% "scalajs-dom" % "2.0.0"),
     )
   )
   .settings(commonSettings)
@@ -47,7 +47,7 @@ lazy val shared = project
 
 lazy val commonSettings = List(
   organization := "com.github.lavrov",
-  scalaVersion := "3.0.2",
+  scalaVersion := "3.1.0",
   externalResolvers ++= List(
     "server packages" at "https://maven.pkg.github.com/TorrentDamDev/server",
     "bittorrent packages" at "https://maven.pkg.github.com/TorrentDamDev/bittorrent",

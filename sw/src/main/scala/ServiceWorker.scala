@@ -1,7 +1,7 @@
 package default
 
 import org.scalajs.dom.console
-import org.scalajs.dom.experimental.serviceworkers.ServiceWorkerGlobalScope._
+import org.scalajs.dom.ServiceWorkerGlobalScope._
 
 
 object ServiceWorker {
