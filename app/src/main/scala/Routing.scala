@@ -1,9 +1,9 @@
 package default
 
 import com.github.lavrov.bittorrent.InfoHash
-import com.raquo.waypoint._
+import com.raquo.waypoint.*
 import com.raquo.laminar.api.L
-import upickle.default._
+import upickle.default.*
 import urldsl.errors.DummyError
 import urldsl.vocabulary.{FromString, Printer}
 
@@ -13,6 +13,7 @@ object Routing {
   enum Page:
     case Root(query: Option[String])
     case Torrent(infoHash: InfoHash)
+    case HandleMagnet(url: String)
 
   object Page:
 
@@ -21,12 +22,14 @@ object Routing {
         case Root(None) => "/"
         case Root(Some(query)) => s"/?query=$query"
         case Torrent(infoHash) => s"/torrent/$infoHash"
+        case HandleMagnet(url) => s"/handle-magnet?url=$url"
 
     def fromString(string: String): Page =
       string match
         case s"/" => Root(None)
         case s"/?query=$query" => Root(Some(query))
         case s"/torrent/${InfoHash.fromString(infoHash)}" => Torrent(infoHash)
+        case s"/handle-magnet?url=$url" => HandleMagnet(url)
 
   end Page
 
@@ -49,6 +52,11 @@ object Routing {
         _.infoHash,
         infoHash => Page.Torrent(infoHash),
         pattern = appPathRoot / "torrent" / segment[InfoHash] / endOfSegments
+      ),
+      Route.onlyQuery[Page.HandleMagnet, String](
+        _.url,
+        url => Page.HandleMagnet(url),
+        pattern = (appPathRoot / "handle-magnet") ? param[String]("url")
       )
     ),
     getPageTitle = _ => "TorrentDam",

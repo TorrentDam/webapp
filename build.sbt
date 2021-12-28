@@ -14,7 +14,7 @@ lazy val app = project
       "io.laminext" %%% "websocket" % "0.14.0",
       "io.circe" %%% "circe-parser" % "0.15.0-M1",
       "io.circe" %%% "circe-generic" % "0.15.0-M1",
-      ("org.typelevel" %%% "squants" % "1.6.0").cross(CrossVersion.for3Use2_13),
+      "org.typelevel" %%% "squants" % "1.6.0" cross CrossVersion.for3Use2_13,
     ),
     Compile / scalaJSModuleInitializers ++= List(
       ModuleInitializer.mainMethod("default.Main", "init").withModuleID("main"),
