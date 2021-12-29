@@ -12,7 +12,6 @@ import pages.{SearchPage, TorrentPage, HandleUrlPage}
 import scala.concurrent.ExecutionContext.Implicits.global
 import dom.experimental.serviceworkers._
 
-import util.chaining.scalaUtilChainingOps
 import com.raquo.laminar.nodes.ReactiveElement
 import scala.scalajs.js.annotation.JSImport
 
