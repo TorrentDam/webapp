@@ -1,7 +1,7 @@
 package default
 
-import org.scalajs.dom.console
-import org.scalajs.dom.ServiceWorkerGlobalScope._
+import org.scalajs.dom.{console, fetch}
+import org.scalajs.dom.ServiceWorkerGlobalScope.*
 
 
 object ServiceWorker {
@@ -15,4 +15,6 @@ object ServiceWorker {
     self.onactivate = (event) =>
       console.log("ServiceWorker: activate")
 
+    self.onfetch = (event) =>
+      event.respondWith(fetch(event.request))
 }
