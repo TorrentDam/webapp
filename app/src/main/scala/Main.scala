@@ -8,7 +8,7 @@ import org.scalajs.dom.console
 import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.SplitRender
 import io.laminext.websocket.*
-import pages.{SearchPage, TorrentPage, HandleMagnetPage}
+import pages.{SearchPage, TorrentPage, HandleUrlPage}
 import scala.concurrent.ExecutionContext.Implicits.global
 import dom.experimental.serviceworkers._
 
@@ -50,8 +50,8 @@ object Main {
               }
             )
           }
-          .collect[Routing.Page.HandleMagnet] { page =>
-            HandleMagnetPage(page.url)
+          .collect[Routing.Page.HandleUrl] { page =>
+            HandleUrlPage(page.url)
           }
           .$view
       )
@@ -64,7 +64,7 @@ object Main {
 
     dom.window.navigator.asInstanceOf[js.Dynamic].registerProtocolHandler(
       "magnet",
-      s"${location.protocol}//${location.host}/handle-magnet?url=%s",
+      s"${location.protocol}//${location.host}/handle?url=%s",
       "TorrentDam"
     )
   }
