@@ -66,6 +66,13 @@ object Main {
       s"${location.protocol}//${location.host}/handle?url=%s",
       "TorrentDam"
     )
+
+    dom.window.navigator.serviceWorker
+      .register("/sw.js")
+      .toFuture
+      .foreach { registration =>
+        console.log("ServiceWorker registered")
+      }
   }
 
   def stringToEvent(value: String): Either[Throwable, Event] = Right(upickle.default.read[Event](value))
