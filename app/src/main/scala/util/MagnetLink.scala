@@ -10,6 +10,7 @@ object MagnetLink {
   def fromString(source: String): Option[MagnetLink] =
     source match
       case s"magnet:?$query" => fromQueryString(query)
+      case _ => None
 
   private def fromQueryString(str: String) =
     val params = parseQueryString(str)
