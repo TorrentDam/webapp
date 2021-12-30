@@ -22,7 +22,7 @@
       {
         "protocol": "magnet",
         "name": "TorrentDam",
-        "uriTemplate": "https://torrentdam.github.io/handle?url=%s"
+        "url": "/handle?url=%s"
       }
     ]
 }
