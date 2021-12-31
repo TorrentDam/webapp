@@ -16,25 +16,19 @@ def SearchPage(
   section(cls := "section",
     onMountInsert { ctx =>
       val searchTermVar = Var(initial = "")
-      val infoHashSignal =
-        searchTermVar
-          .signal
-          .map {
-            case InfoHash.fromString(infoHash) => Some(infoHash)
-            case MagnetLink.fromString.unlift(link) => Some(link.infoHash)
-            case _ => None
-          }
-          .observe(ctx.owner)
+      searchTermVar
+        .signal
+        .foreach {
+          case InfoHash.fromString(infoHash) =>
+            Routing.router.pushState(Routing.Page.Torrent(infoHash))
+          case MagnetLink.fromString.unlift(link) =>
+            Routing.router.pushState(Routing.Page.Torrent(link.infoHash))
+          case _ =>
+        }(ctx.owner)
       div(
         cls := "container is-max-desktop",
         form(cls := "block",
-          onSubmit.preventDefault --> { _ =>
-            infoHashSignal.now() match
-              case Some(infoHash) =>
-                Routing.router.pushState(Routing.Page.Torrent(infoHash))
-              case _ =>
-          },
-          div(cls := "field has-addons",
+          div(cls := "field",
             div(cls := "control is-large is-expanded",
               input(
                 cls := "input is-primary is-large",
@@ -43,15 +37,7 @@ def SearchPage(
                 value <-- query.map(_.getOrElse("")),
                 onInput.mapToValue --> searchTermVar
               )
-            ),
-            child <-- infoHashSignal.map {
-              case Some(_) =>
-                div(cls := "control is-hidden-mobile",
-                  button(cls := "button is-primary is-large", "Open")
-                )
-              case None =>
-                emptyNode
-            }
+            )
           )
         ),
       )
