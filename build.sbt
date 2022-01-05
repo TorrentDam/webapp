@@ -8,7 +8,7 @@ lazy val app = project
   .dependsOn(shared)
   .settings(
     libraryDependencies ++= List(
-      "com.github.torrentdam.server" %%% "protocol" % "1.0.1",
+      "com.github.torrentdam.server" %%% "protocol" % "1.1.0",
       "com.raquo" %%% "laminar" % "0.14.0",
       "com.raquo" %%% "waypoint" % "0.5.0",
       "io.laminext" %%% "websocket" % "0.14.0",

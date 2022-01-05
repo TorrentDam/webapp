@@ -22,7 +22,7 @@
       {
         "protocol": "magnet",
         "name": "TorrentDam",
-        "url": "/handle?url=%s"
+        "url": "/torrent?url=%s"
       }
     ]
 }

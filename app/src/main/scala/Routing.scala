@@ -6,14 +6,14 @@ import com.raquo.laminar.api.L
 import upickle.default.*
 import urldsl.errors.DummyError
 import urldsl.vocabulary.{FromString, Printer}
+import util.MagnetLink
 
 
 object Routing {
 
   enum Page:
     case Root(query: Option[String])
-    case Torrent(infoHash: InfoHash)
-    case HandleUrl(url: String)
+    case Torrent(url: String)
 
   object Page:
 
@@ -21,25 +21,17 @@ object Routing {
       page match
         case Root(None) => "/"
         case Root(Some(query)) => s"/?query=$query"
-        case Torrent(infoHash) => s"/torrent/$infoHash"
-        case HandleUrl(url) => s"/handle?url=$url"
+        case Torrent(url) => s"/torrent?url=$url"
 
     def fromString(string: String): Page =
       string match
         case s"/" => Root(None)
         case s"/?query=$query" => Root(Some(query))
-        case s"/torrent/${InfoHash.fromString(infoHash)}" => Torrent(infoHash)
-        case s"/handle-magnet?url=$url" => HandleUrl(url)
+        case s"/torrent?url=$url" => Torrent(url)
 
   end Page
 
   val appPathRoot = root
-
-  given FromString[InfoHash, DummyError] =
-    FromString
-      .factory(InfoHash.fromString.lift.andThen(_.toRight(DummyError.dummyError)))
-
-  given Printer[InfoHash] = Printer.factory(_.toString)
 
   val router = Router[Page](
     routes = List(
@@ -48,15 +40,10 @@ object Routing {
         query => Page.Root(query.headOption),
         pattern = (appPathRoot / endOfSegments) ? listParam[String]("q")
       ),
-      Route[Page.Torrent, InfoHash](
-        _.infoHash,
-        infoHash => Page.Torrent(infoHash),
-        pattern = appPathRoot / "torrent" / segment[InfoHash] / endOfSegments
-      ),
-      Route.onlyQuery[Page.HandleUrl, String](
+      Route.onlyQuery[Page.Torrent, String](
         _.url,
-        url => Page.HandleUrl(url),
-        pattern = (appPathRoot / "handle") ? param[String]("url")
+        url => Page.Torrent(url),
+        pattern = (appPathRoot / "torrent") ? param[String]("url")
       )
     ),
     getPageTitle = _ => "TorrentDam",

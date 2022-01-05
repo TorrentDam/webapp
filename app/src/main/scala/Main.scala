@@ -8,11 +8,13 @@ import org.scalajs.dom.console
 import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.SplitRender
 import io.laminext.websocket.*
-import pages.{SearchPage, TorrentPage, HandleUrlPage}
-import scala.concurrent.ExecutionContext.Implicits.global
-import dom.experimental.serviceworkers._
+import pages.{SearchPage, TorrentPage}
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import dom.experimental.serviceworkers.*
 import com.raquo.laminar.nodes.ReactiveElement
+import util.MagnetLink
+
 import scala.scalajs.js.annotation.JSImport
 
 object Main {
@@ -41,16 +43,17 @@ object Main {
             )
           }
           .collect[Routing.Page.Torrent] { page =>
-            TorrentPage(
-              page.infoHash,
-              ws.send,
-              ws.received.collect {
-                case r: Event.TorrentMetadataReceived => r
-              }
-            )
-          }
-          .collect[Routing.Page.HandleUrl] { page =>
-            HandleUrlPage(page.url)
+            MagnetLink.fromString(page.url) match
+              case Some(magnet) =>
+                TorrentPage(
+                  magnet,
+                  ws.send,
+                  ws.received.collect {
+                    case r: Event.TorrentMetadataReceived => r
+                  }
+                )
+              case _ =>
+                div("Invalid url")
           }
           .$view
       )
@@ -63,7 +66,7 @@ object Main {
 
     dom.window.navigator.asInstanceOf[js.Dynamic].registerProtocolHandler(
       "magnet",
-      s"${location.protocol}//${location.host}/handle?url=%s",
+      s"${location.protocol}//${location.host}/torrent?url=%s",
       "TorrentDam"
     )
 

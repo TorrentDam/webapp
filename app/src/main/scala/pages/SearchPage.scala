@@ -2,7 +2,7 @@ package pages
 
 import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.Event
-import com.raquo.laminar.api.L._
+import com.raquo.laminar.api.L.*
 import default.Routing
 import util.MagnetLink
 import scodec.bits.ByteVector
@@ -20,9 +20,9 @@ def SearchPage(
         .signal
         .foreach {
           case InfoHash.fromString(infoHash) =>
-            Routing.router.pushState(Routing.Page.Torrent(infoHash))
-          case MagnetLink.fromString.unlift(link) =>
-            Routing.router.pushState(Routing.Page.Torrent(link.infoHash))
+            Routing.router.pushState(Routing.Page.Torrent(s"magnet:?urn:btih:$infoHash"))
+          case url @ MagnetLink.fromString.unlift(_) =>
+            Routing.router.pushState(Routing.Page.Torrent(url))
           case _ =>
         }(ctx.owner)
       div(

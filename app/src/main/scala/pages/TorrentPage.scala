@@ -3,20 +3,21 @@ package pages
 import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
-import com.raquo.laminar.api.L._
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import squants.experimental.formatter.Formatters.InformationMetricFormatter
 import squants.information.Bytes
+import util.MagnetLink
 
 
 def TorrentPage(
-  infoHash: InfoHash,
+  magnetLink: MagnetLink,
   send: Observer[Command.GetTorrent],
   events: EventStream[Event.TorrentMetadataReceived]
 ) =
+  val infoHash = magnetLink.infoHash
 
   val showModalVar = Var(Option.empty[ActiveFile])
-
   val loadingVar = Var(true)
 
   def videoUrl(index: Int) =
@@ -94,7 +95,7 @@ def TorrentPage(
     },
     section(cls := "section",
       div(cls := "container",
-        onMountCallback(_ => send.onNext(Command.GetTorrent(infoHash))),
+        onMountCallback(_ => send.onNext(Command.GetTorrent(infoHash, magnetLink.trackers))),
         children <-- content,
         child <-- showModalVar.signal.map {
           case Some(file) => openModal(file, showModalVar.toObserver.contramap(_ => None))
