@@ -11,7 +11,7 @@ lazy val app = project
       "com.github.torrentdam.server" %%% "protocol" % "1.1.0",
       "com.raquo" %%% "laminar" % "0.14.0",
       "com.raquo" %%% "waypoint" % "0.5.0",
-      "io.laminext" %%% "websocket" % "0.14.0",
+      "io.laminext" %%% "websocket" % "0.14.3",
       "io.circe" %%% "circe-parser" % "0.15.0-M1",
       "io.circe" %%% "circe-generic" % "0.15.0-M1",
       "org.typelevel" %%% "squants" % "1.6.0" cross CrossVersion.for3Use2_13,

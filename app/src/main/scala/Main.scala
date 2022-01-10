@@ -2,7 +2,6 @@ package default
 
 import scala.scalajs.js
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
-import com.raquo.airstream.ownership.ManualOwner
 import org.scalajs.dom
 import org.scalajs.dom.console
 import com.raquo.laminar.api.L.*
@@ -31,7 +30,7 @@ object Main {
       .url("wss://bittorrent-server.herokuapp.com/ws")
       .receiveText(stringToEvent)
       .sendText(commandToString)
-      .build(managed = true, autoReconnect = true)
+      .build()
 
     val rootElement =
       App(
