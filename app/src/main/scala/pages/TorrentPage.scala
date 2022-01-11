@@ -57,7 +57,7 @@ def TorrentPage(
     )
 
   def magnetTab =
-    div(
+    div(cls := "is-clipped",
       div(cls := "columns",
         div(cls := "column is-one-quarter", span(cls := "has-text-weight-bold", "Info-Hash")),
         div(cls := "column is-family-monospace", magnetLink.infoHash.toString),
