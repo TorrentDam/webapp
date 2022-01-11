@@ -17,11 +17,60 @@ def TorrentPage(
 ) =
   val infoHash = magnetLink.infoHash
 
+  val currentTabVar = Var["files" | "magnet"]("files")
+  def isCurrentTab(name: String) = currentTabVar.signal.map(_ == name)
+
   val showModalVar = Var(Option.empty[ActiveFile])
   val loadingVar = Var(true)
 
   def videoUrl(index: Int) =
     s"https://bittorrent-server.herokuapp.com/torrent/$infoHash/data/$index"
+
+  def filesTab(files: List[Event.File]) =
+    div(
+      files.zipWithIndex.map { case (file, index) =>
+        div(cls := "media",
+          div(cls := "media-content",
+            p(cls := "subtitle is-6",
+              a(
+                file.path.mkString,
+                onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
+              )
+            ),
+          ),
+          div(cls := "media-right",
+            div(cls := "level level-right",
+              p(cls := "level-item",
+                span(cls := "is-size-7", renderBytes(file.size))
+              ),
+              p(cls := "level-item",
+                a(cls := "button is-small is-light",
+                  href := videoUrl(index),
+                  download := "",
+                  "Download"
+                )
+              )
+            )
+          )
+        )
+      }
+    )
+
+  def magnetTab =
+    div(
+      div(cls := "columns",
+        div(cls := "column is-one-quarter", span(cls := "has-text-weight-bold", "Info-Hash")),
+        div(cls := "column is-family-monospace", magnetLink.infoHash.toString),
+      ),
+      div(cls := "columns",
+        div(cls := "column is-one-quarter", span(cls := "has-text-weight-bold", "Display name")),
+        div(cls := "column", magnetLink.displayName.getOrElse("")),
+      ),
+      div(cls := "columns",
+        div(cls := "column is-one-quarter", span(cls := "has-text-weight-bold", "Trackers")),
+        div(cls := "column", magnetLink.trackers.map(p(_))),
+      ),
+    )
 
   val content =
     events
@@ -57,35 +106,20 @@ def TorrentPage(
             ),
             div(cls := "tabs",
               ul(
-                li(cls := "is-active", a("Files")),
+                li(
+                  cls.toggle("is-active") <-- isCurrentTab("files"),
+                  a("Files", onClick.mapTo("files") --> currentTabVar)
+                ),
+                li(
+                  cls.toggle("is-active") <-- isCurrentTab("magnet"),
+                  a("Magnet", onClick.mapTo("magnet") --> currentTabVar)
+                ),
               )
             ),
             div(
-              metadata.files.zipWithIndex.map { case (file, index) =>
-                div(cls := "media",
-                  div(cls := "media-content",
-                    p(cls := "subtitle is-6",
-                      a(
-                        file.path.mkString,
-                        onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
-                      )
-                    ),
-                  ),
-                  div(cls := "media-right",
-                    div(cls := "level level-right",
-                      p(cls := "level-item",
-                        span(cls := "is-size-7", renderBytes(file.size))
-                      ),
-                      p(cls := "level-item",
-                        a(cls := "button is-small is-light",
-                          href := videoUrl(index),
-                          download := "",
-                          "Download"
-                        )
-                      )
-                    )
-                  )
-                )
+              child <-- currentTabVar.signal.map {
+                case "files" => filesTab(metadata.files)
+                case "magnet" => magnetTab
               }
             )
           )
