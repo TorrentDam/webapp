@@ -72,11 +72,16 @@ def TorrentPage(
                     ),
                   ),
                   div(cls := "media-right",
-                    p(cls := "buttons",
-                      a(cls := "button is-small is-light",
-                        href := videoUrl(index),
-                        download := "",
-                        "Download"
+                    div(cls := "level level-right",
+                      p(cls := "level-item",
+                        span(cls := "is-size-7", renderBytes(file.size))
+                      ),
+                      p(cls := "level-item",
+                        a(cls := "button is-small is-light",
+                          href := videoUrl(index),
+                          download := "",
+                          "Download"
+                        )
                       )
                     )
                   )
@@ -123,10 +128,10 @@ private def openModal(activeFile: ActiveFile, close: Observer[Any]) = {
 private def genericModal(activeFile: ActiveFile, close: Observer[Any]) = {
   modal(
     div(cls := "card",
-      div(cls:="card-content",
-        div(cls:="media",
-          div(cls:="media-content",
-            h4(cls:="title is-4", activeFile.name)
+      div(cls := "card-content",
+        div(cls := "media",
+          div(cls := "media-content",
+            h4(cls := "title is-4", activeFile.name)
           )
         )
       )
@@ -147,10 +152,10 @@ private def videoModal(activeFile: ActiveFile, close: Observer[Any]) = {
           )
         )
       ),
-      div(cls:="card-content",
-        div(cls:="media",
-          div(cls:="media-content",
-            h4(cls:="title is-4", activeFile.name)
+      div(cls := "card-content",
+        div(cls := "media",
+          div(cls := "media-content",
+            h4(cls := "title is-4", activeFile.name)
           )
         )
       )
@@ -167,10 +172,10 @@ private def imageModal(activeFile: ActiveFile, close: Observer[Any]) = {
           img(src := activeFile.src)
         ),
       ),
-      div(cls:="card-content",
-        div(cls:="media",
-          div(cls:="media-content",
-            h4(cls:="title is-4", activeFile.name)
+      div(cls := "card-content",
+        div(cls := "media",
+          div(cls := "media-content",
+            h4(cls := "title is-4", activeFile.name)
           )
         )
       )
@@ -180,12 +185,12 @@ private def imageModal(activeFile: ActiveFile, close: Observer[Any]) = {
 }
 
 private def modal(content: ReactiveHtmlElement[org.scalajs.dom.html.Div], close: Observer[Any]) = {
-  div(cls:="modal is-active",
-    div(cls:="modal-background",
+  div(cls := "modal is-active",
+    div(cls := "modal-background",
       onClick --> close
     ),
-    div(cls:="modal-content", content),
-    button(cls:="modal-close is-large", aria.label:="close",
+    div(cls := "modal-content", content),
+    button(cls := "modal-close is-large", aria.label := "close",
       onClick --> close
     )
   )
