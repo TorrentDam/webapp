@@ -17,8 +17,7 @@ def TorrentPage(
 ) =
   val infoHash = magnetLink.infoHash
 
-  val currentTabVar = Var["files" | "magnet"]("files")
-  def isCurrentTab(name: String) = currentTabVar.signal.map(_ == name)
+  val currentTab = Switch("files")
 
   val showModalVar = Var(Option.empty[ActiveFile])
   val loadingVar = Var(true)
@@ -107,17 +106,17 @@ def TorrentPage(
             div(cls := "tabs",
               ul(
                 li(
-                  cls.toggle("is-active") <-- isCurrentTab("files"),
-                  a("Files", onClick.mapTo("files") --> currentTabVar)
+                  cls.toggle("is-active") <-- currentTab.port("files"),
+                  a("Files", onClick.mapTo("files") --> currentTab.activate)
                 ),
                 li(
-                  cls.toggle("is-active") <-- isCurrentTab("magnet"),
-                  a("Magnet", onClick.mapTo("magnet") --> currentTabVar)
+                  cls.toggle("is-active") <-- currentTab.port("magnet"),
+                  a("Magnet", onClick.mapTo("magnet") --> currentTab.activate)
                 ),
               )
             ),
             div(
-              child <-- currentTabVar.signal.map {
+              child <-- currentTab.active.map {
                 case "files" => filesTab(metadata.files)
                 case "magnet" => magnetTab
               }
@@ -232,3 +231,10 @@ private def modal(content: ReactiveHtmlElement[org.scalajs.dom.html.Div], close:
 
 private def renderBytes(bytes: Long) =
   InformationMetricFormatter.inBestUnit(Bytes(bytes)).rounded(1).toString
+
+private class Switch(default: String) {
+  private val current: Var[String] = Var(default)
+  def active: Signal[String] = current.signal
+  def activate: Observer[String] = current.toObserver
+  def port(name: String): Signal[Boolean] = current.signal.map(_ == name)
+}
