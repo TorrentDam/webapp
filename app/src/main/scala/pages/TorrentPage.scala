@@ -1,6 +1,7 @@
 package pages
 
 import com.github.lavrov.bittorrent.InfoHash
+import com.github.lavrov.bittorrent.app.protocol.Event.{TorrentMetadataReceived, TorrentStats}
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.*
@@ -13,7 +14,7 @@ import util.MagnetLink
 def TorrentPage(
   magnetLink: MagnetLink,
   send: Observer[Command.GetTorrent],
-  events: EventStream[Event.TorrentMetadataReceived]
+  events: EventStream[Event.TorrentMetadataReceived | Event.TorrentStats]
 ) =
   val infoHash = magnetLink.infoHash
 
@@ -21,6 +22,10 @@ def TorrentPage(
 
   val showModalVar = Var(Option.empty[ActiveFile])
   val loadingVar = Var(true)
+  val torrentMetadataVar = Var(Option.empty[TorrentMetadataReceived])
+  val torrentStatsVar = Var(Option.empty[TorrentStats])
+
+  val connectedPeerCount = torrentStatsVar.signal.map(_.map(_.connected).getOrElse(0))
 
   def videoUrl(index: Int) =
     s"https://bittorrent-server.herokuapp.com/torrent/$infoHash/data/$index"
@@ -72,9 +77,8 @@ def TorrentPage(
     )
 
   val content =
-    events
-      .filter(_.infoHash == infoHash)
-      .startWithNone
+    torrentMetadataVar
+      .signal
       .map {
         case None =>
           List(
@@ -94,10 +98,16 @@ def TorrentPage(
                     p(cls := "subtitle", metadata.files.size)
                   )
                 ),
-                div(cls := "level-item has-text-centered",
+                div(cls := "level-item has-text-centered  mr-6",
                   div(
                     p(cls := "heading", "Size"),
                     p(cls := "subtitle", renderBytes(metadata.files.map(_.size).sum))
+                  )
+                ),
+                div(cls := "level-item has-text-centered",
+                  div(
+                    p(cls := "heading", "Peers"),
+                    p(cls := "subtitle", child <-- connectedPeerCount.map(_.toString))
                   )
                 )
               ),
@@ -133,7 +143,14 @@ def TorrentPage(
     },
     section(cls := "section",
       div(cls := "container",
-        onMountCallback(_ => send.onNext(Command.GetTorrent(infoHash, magnetLink.trackers))),
+        onMountCallback { ctx =>
+          import ctx.owner
+          events.foreach {
+            case e: TorrentStats => torrentStatsVar.set(Some(e))
+            case e: TorrentMetadataReceived => torrentMetadataVar.set(Some(e))
+          }
+          send.onNext(Command.GetTorrent(infoHash, magnetLink.trackers))
+        },
         children <-- content,
         child <-- showModalVar.signal.map {
           case Some(file) => openModal(file, showModalVar.toObserver.contramap(_ => None))

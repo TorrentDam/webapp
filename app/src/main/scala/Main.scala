@@ -48,7 +48,8 @@ object Main {
                   magnet,
                   ws.send,
                   ws.received.collect {
-                    case r: Event.TorrentMetadataReceived => r
+                    case e: Event.TorrentMetadataReceived if e.infoHash == magnet.infoHash => e
+                    case e: Event.TorrentStats if e.infoHash == magnet.infoHash => e
                   }
                 )
               case _ =>
