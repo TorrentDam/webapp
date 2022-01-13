@@ -17,7 +17,7 @@ def TorrentPage(
 ) =
   val infoHash = magnetLink.infoHash
 
-  val currentTab = Switch("files")
+  val currentTab = Switch["files" | "magnet"]("files")
 
   val showModalVar = Var(Option.empty[ActiveFile])
   val loadingVar = Var(true)
@@ -232,9 +232,9 @@ private def modal(content: ReactiveHtmlElement[org.scalajs.dom.html.Div], close:
 private def renderBytes(bytes: Long) =
   InformationMetricFormatter.inBestUnit(Bytes(bytes)).rounded(1).toString
 
-private class Switch(default: String) {
-  private val current: Var[String] = Var(default)
-  def active: Signal[String] = current.signal
-  def activate: Observer[String] = current.toObserver
+private class Switch[A](default: A)(using CanEqual[A, A]) {
+  private val current: Var[A] = Var(default)
+  def active: Signal[A] = current.signal
+  def activate: Observer[A] = current.toObserver
   def port(name: String): Signal[Boolean] = current.signal.map(_ == name)
 }
