@@ -9,7 +9,7 @@ def App(modifiers: Modifier[Div]*) =
     nav(className := "navbar has-shadow is-spaced",
       div(className := "container",
         div(className := "navbar-brand",
-          a(className := "navbar-item", href := "https://torrentdam.github.io/",
+          a(className := "navbar-item", href := "/",
             img(className := "logo", src := "/images/windmill.svg"),
             span(className := "title", "TorrentDam")
           )
