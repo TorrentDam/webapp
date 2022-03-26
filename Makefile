@@ -11,4 +11,3 @@ dev:
 
 build-docker: prepare-gh-pages
 	docker build -t ghcr.io/torrentdamdev/web .
-	docker push ghcr.io/torrentdamdev/web
