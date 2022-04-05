@@ -26,8 +26,10 @@ object Main {
 
     val _ = fontawesome
 
+    dom.window.console.log(Config)
+
     val ws = WebSocket
-      .url("wss://bittorrent-server.herokuapp.com/ws")
+      .url(s"wss://${Config.server}/ws")
       .receiveText(stringToEvent)
       .sendText(commandToString)
       .build()

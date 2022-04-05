@@ -7,11 +7,13 @@ module.exports = {
     "app/target/scala-3.1.0/app-fastopt": "/",
     "sw/target/scala-3.1.0/sw-fastopt": "/",
   },
-  "routes": [
+  routes: [
     {"match": "routes", "src": ".*", "dest": "/index.html"},
   ],
   optimize: {
-    bundle: true,
+    // https://github.com/withastro/snowpack/issues/3109
+    // When fixed config.js -> config.json
+    bundle: false,
     minify: true,
     target: 'es2018',
   },

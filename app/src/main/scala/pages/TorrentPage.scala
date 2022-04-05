@@ -9,6 +9,7 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import squants.experimental.formatter.Formatters.InformationMetricFormatter
 import squants.information.Bytes
 import util.MagnetLink
+import default.Config
 
 
 def TorrentPage(
@@ -28,7 +29,7 @@ def TorrentPage(
   val connectedPeerCount = torrentStatsVar.signal.map(_.map(_.connected).getOrElse(0))
 
   def videoUrl(index: Int) =
-    s"https://bittorrent-server.herokuapp.com/torrent/$infoHash/data/$index"
+    s"https://${Config.server}/torrent/$infoHash/data/$index"
 
   def filesTab(files: List[Event.File]) =
     div(
