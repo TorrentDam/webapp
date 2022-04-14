@@ -20,7 +20,7 @@ def SearchPage(
         .signal
         .foreach {
           case InfoHash.fromString(infoHash) =>
-            Routing.router.pushState(Routing.Page.Torrent(s"magnet:?urn:btih:$infoHash"))
+            Routing.router.pushState(Routing.Page.Torrent(s"magnet:?xt=urn:btih:$infoHash"))
           case url @ MagnetLink.fromString.unlift(_) =>
             Routing.router.pushState(Routing.Page.Torrent(url))
           case _ =>
