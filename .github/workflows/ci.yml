@@ -46,7 +46,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/torrentdamdev/web:latest, ghcr.io/torrentdamdev/web:${{ github.sha }}
+          tags: ghcr.io/torrentdam/web:${{ github.sha }}
 
       - name: Publish gh-pages
         uses: peaceiris/actions-gh-pages@v3.7.3
