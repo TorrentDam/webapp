@@ -8,7 +8,7 @@ lazy val app = project
   .dependsOn(shared)
   .settings(
     libraryDependencies ++= List(
-      "com.github.torrentdam.server" %%% "protocol" % "1.1.0",
+      "io.github.torrentdam.server" %%% "protocol" % "1.0.0",
       "com.raquo" %%% "laminar" % "0.14.0",
       "com.raquo" %%% "waypoint" % "0.5.0",
       "io.laminext" %%% "websocket" % "0.14.3",
@@ -36,7 +36,7 @@ lazy val sw = project
 lazy val shared = project
   .settings(
     libraryDependencies ++= List(
-      "com.github.torrentdam" %%% "common" % "1.0.0",
+      "io.github.torrentdam.bittorrent" %%% "common" % "1.0.0",
       "io.circe" %%% "circe-parser" % "0.15.0-M1",
       "io.circe" %%% "circe-generic" % "0.15.0-M1",
       ("org.scala-js" %%% "scalajs-dom" % "2.0.0"),
@@ -46,11 +46,7 @@ lazy val shared = project
   .enablePlugins(ScalaJSPlugin)
 
 lazy val commonSettings = List(
-  organization := "com.github.lavrov",
+  organization := "io.github.torrentdam.webapp",
   scalaVersion := "3.1.0",
-  externalResolvers ++= List(
-    "server packages" at "https://maven.pkg.github.com/TorrentDamDev/server",
-    "bittorrent packages" at "https://maven.pkg.github.com/TorrentDamDev/bittorrent",
-  ),
   scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
 )
