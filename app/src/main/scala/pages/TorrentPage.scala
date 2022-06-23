@@ -14,7 +14,7 @@ import default.Config
 
 def TorrentPage(
   magnetLink: MagnetLink,
-  send: Observer[Command.GetTorrent],
+  send: Observer[Command.RequestTorrent],
   events: EventStream[Event.TorrentMetadataReceived | Event.TorrentStats]
 ) =
   val infoHash = magnetLink.infoHash
@@ -29,7 +29,7 @@ def TorrentPage(
   val connectedPeerCount = torrentStatsVar.signal.map(_.map(_.connected).getOrElse(0))
 
   def videoUrl(index: Int) =
-    s"https://${Config.server}/torrent/$infoHash/data/$index"
+    Config.httpUrl(s"torrent/$infoHash/data/$index")
 
   def filesTab(files: List[Event.File]) =
     div(
@@ -150,7 +150,7 @@ def TorrentPage(
             case e: TorrentStats => torrentStatsVar.set(Some(e))
             case e: TorrentMetadataReceived => torrentMetadataVar.set(Some(e))
           }
-          send.onNext(Command.GetTorrent(infoHash, magnetLink.trackers))
+          send.onNext(Command.RequestTorrent(infoHash, magnetLink.trackers))
         },
         children <-- content,
         child <-- showModalVar.signal.map {

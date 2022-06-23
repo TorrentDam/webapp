@@ -29,7 +29,7 @@ object Main {
     dom.window.console.log(Config)
 
     val ws = WebSocket
-      .url(s"wss://${Config.server}/ws")
+      .url(Config.websocketUrl("ws"))
       .receiveText(stringToEvent)
       .sendText(commandToString)
       .build()
