@@ -51,6 +51,7 @@ def TorrentPage(
               p(cls := "level-item",
                 a(cls := "button is-small is-light",
                   href := videoUrl(index),
+                  target := "_blank",
                   download := "",
                   "Download"
                 )
