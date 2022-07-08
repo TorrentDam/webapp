@@ -27,6 +27,14 @@ def TorrentPage(
   val torrentStatsVar = Var(Option.empty[TorrentStats])
 
   val connectedPeerCount = torrentStatsVar.signal.map(_.map(_.connected).getOrElse(0))
+  def availability(index: Int) =
+    torrentStatsVar.signal
+      .map {
+        case Some(stats) => stats.availability.lift(index).getOrElse(0.0)
+        case None => 0.0
+      }
+      .map(_ * 100)
+      .map(p => span(s"$p%"))
 
   def videoUrl(index: Int) =
     Config.httpUrl(s"torrent/$infoHash/data/$index")
@@ -46,7 +54,7 @@ def TorrentPage(
           div(cls := "media-right",
             div(cls := "level level-right",
               p(cls := "level-item",
-                span(cls := "is-size-7", renderBytes(file.size))
+                span(cls := "is-size-7", renderBytes(file.size), " / ", child <-- availability(index))
               ),
               p(cls := "level-item",
                 a(cls := "button is-small is-light",
