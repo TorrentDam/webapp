@@ -34,10 +34,19 @@ object Main {
       .sendText(commandToString)
       .build()
 
+    val currentTorrentVar: Var[Option[MagnetLink]] = Var(None)
+
+    def runSubscriptions(using Owner): Unit =
+      ws.connected.startWithNone.combineWith(currentTorrentVar).foreach {
+        case (Some(_), Some(magnet)) => ws.sendOne(Command.RequestTorrent(magnet.infoHash, magnet.trackers))
+        case _ =>
+      }
+
     val rootElement =
       App(
         ws.isConnected,
         ws.connect,
+        onMountCallback(ctx => runSubscriptions(using ctx.owner)),
         child <-- SplitRender[Routing.Page, HtmlElement](Routing.router.$currentPage)
           .collectSignal[Routing.Page.Root] { $page =>
             SearchPage(
@@ -54,6 +63,8 @@ object Main {
                     case e: Event.TorrentMetadataReceived if e.infoHash == magnet.infoHash => e
                     case e: Event.TorrentStats if e.infoHash == magnet.infoHash => e
                   }
+                ).amend(
+                  onMountCallback(_ => currentTorrentVar.set(Some(magnet))),
                 )
               case _ =>
                 div("Invalid url")

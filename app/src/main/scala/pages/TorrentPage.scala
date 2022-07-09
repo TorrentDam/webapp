@@ -159,7 +159,6 @@ def TorrentPage(
             case e: TorrentStats => torrentStatsVar.set(Some(e))
             case e: TorrentMetadataReceived => torrentMetadataVar.set(Some(e))
           }
-          send.onNext(Command.RequestTorrent(infoHash, magnetLink.trackers))
         },
         children <-- content,
         child <-- showModalVar.signal.map {
