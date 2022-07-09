@@ -12,10 +12,8 @@ def App(connected: Signal[Boolean], modifiers: Modifier[Div]*) =
           a(className := "navbar-item", href := "/",
             img(className := "logo", src := "/images/windmill.svg"),
             span(className := "title", "TorrentDam")
-          )
-        ),
-        div(className := "navbar-menu",
-          div(className := "navbar-end",
+          ),
+          div(className := "navbar-item",
             span(className := "tags has-addons",
               className.toggle("is-hidden") <-- EventStream.fromValue(false).delay(1000).startWith(true),
               span(className := "tag", "connected"),
