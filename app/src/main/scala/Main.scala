@@ -36,6 +36,7 @@ object Main {
 
     val rootElement =
       App(
+        ws.isConnected,
         ws.connect,
         child <-- SplitRender[Routing.Page, HtmlElement](Routing.router.$currentPage)
           .collectSignal[Routing.Page.Root] { $page =>

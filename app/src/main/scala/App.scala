@@ -4,7 +4,7 @@ package default
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
-def App(modifiers: Modifier[Div]*) =
+def App(connected: Signal[Boolean], modifiers: Modifier[Div]*) =
   div(
     nav(className := "navbar has-shadow is-spaced",
       div(className := "container",
@@ -12,6 +12,18 @@ def App(modifiers: Modifier[Div]*) =
           a(className := "navbar-item", href := "/",
             img(className := "logo", src := "/images/windmill.svg"),
             span(className := "title", "TorrentDam")
+          )
+        ),
+        div(className := "navbar-menu",
+          div(className := "navbar-end",
+            span(className := "tags has-addons",
+              className.toggle("is-hidden") <-- EventStream.fromValue(false).delay(1000).startWith(true),
+              span(className := "tag", "connected"),
+              span(className := "tag",
+                className <-- connected.map(if _ then "is-success" else "is-danger"),
+                child <-- connected.map(if _ then "yes" else "no")
+              )
+            )
           )
         )
       )
