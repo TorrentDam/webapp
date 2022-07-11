@@ -46,7 +46,11 @@ object Routing {
         pattern = (appPathRoot / "torrent") ? param[String]("url")
       )
     ),
-    getPageTitle = _ => "TorrentDam",
+    getPageTitle = {
+      case Page.Torrent(MagnetLink.fromString.unlift(MagnetLink(_, Some(displayName), _))) =>
+        displayName + " - TorrentDam"
+      case _ => "TorrentDam"
+    },
     serializePage = page => Page.toString(page),
     deserializePage = pageStr => Page.fromString(pageStr),
     routeFallback = _ => Page.Root(None),
