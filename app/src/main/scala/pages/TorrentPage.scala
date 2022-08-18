@@ -1,5 +1,6 @@
 package pages
 
+import org.scalajs.dom
 import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.Event.{TorrentMetadataReceived, TorrentStats}
 import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
@@ -34,20 +35,26 @@ def TorrentPage(
         case None => 0.0
       }
       .map(_ * 100)
+      .map(_.toInt)
       .map(p => span(s"$p%"))
 
   def videoUrl(index: Int) =
     Config.httpUrl(s"torrent/$infoHash/data/$index")
 
+  val onCopyClick = Observer[Int](fileIndex =>
+    dom.window.navigator.clipboard.writeText(videoUrl(fileIndex))
+  )
+
   def filesTab(files: List[Event.File]) =
     div(
       files.zipWithIndex.map { case (file, index) =>
+        val fileName = file.path.last
         div(cls := "media",
           div(cls := "media-content",
             p(cls := "subtitle is-6",
               a(
                 file.path.mkString,
-                onClick.mapTo(ActiveFile(file.path.last, videoUrl(index))).map(Some(_)) --> showModalVar,
+                onClick.mapTo(ActiveFile(fileName, videoUrl(index))).map(Some(_)) --> showModalVar,
               )
             ),
           ),
@@ -60,8 +67,14 @@ def TorrentPage(
                 a(cls := "button is-small is-light",
                   href := videoUrl(index),
                   target := "_blank",
-                  download := "",
+                  download := fileName,
                   "Download"
+                )
+              ),
+              p(cls := "level-item",
+                button(cls := "button is-small is-light",
+                  onClick.mapTo(index) --> onCopyClick,
+                  "Copy URL"
                 )
               )
             )
