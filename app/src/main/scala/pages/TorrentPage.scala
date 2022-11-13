@@ -2,8 +2,8 @@ package pages
 
 import org.scalajs.dom
 import com.github.lavrov.bittorrent.InfoHash
-import com.github.lavrov.bittorrent.app.protocol.Event.{TorrentMetadataReceived, TorrentStats}
-import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
+import com.github.lavrov.bittorrent.app.protocol.Message.{TorrentMetadataReceived, TorrentStats, RequestTorrent}
+import com.github.lavrov.bittorrent.app.protocol.{Message, Command, Event}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
@@ -14,8 +14,8 @@ import default.Config
 
 def TorrentPage(
   magnetLink: MagnetLink,
-  send: Observer[Command.RequestTorrent],
-  events: EventStream[Event.TorrentMetadataReceived | Event.TorrentStats]
+  send: Observer[RequestTorrent],
+  events: EventStream[TorrentMetadataReceived | TorrentStats]
 ) =
   val infoHash = magnetLink.infoHash
 
@@ -44,7 +44,7 @@ def TorrentPage(
     dom.window.navigator.clipboard.writeText(videoUrl(fileIndex))
   )
 
-  def filesTab(files: List[Event.File]) =
+  def filesTab(files: List[Message.File]) =
     div(
       files.zipWithIndex.map { case (file, index) =>
         val fileName = file.path.last

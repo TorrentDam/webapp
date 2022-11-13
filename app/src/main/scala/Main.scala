@@ -1,7 +1,7 @@
 package default
 
 import scala.scalajs.js
-import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
+import com.github.lavrov.bittorrent.app.protocol.{Message, Command, Event}
 import org.scalajs.dom
 import org.scalajs.dom.console
 import com.raquo.laminar.api.L.*
@@ -30,17 +30,21 @@ object Main {
 
     val ws = WebSocket
       .url(Config.websocketUrl("ws"))
-      .receiveText(stringToEvent)
-      .sendText(commandToString)
+      .receiveText(readMessage)
+      .sendText(writeMessage)
       .build()
 
     val currentTorrentVar: Var[Option[MagnetLink]] = Var(None)
 
     def runSubscriptions(using Owner): Unit =
-      ws.connected.startWithNone.combineWith(currentTorrentVar).foreach {
-        case (Some(_), Some(magnet)) => ws.sendOne(Command.RequestTorrent(magnet.infoHash, magnet.trackers))
+      ws.connected.withCurrentValueOf(currentTorrentVar).foreach {
+        case (_, Some(magnet)) =>
+          ws.sendOne(Message.RequestTorrent(magnet.infoHash, magnet.trackers))
         case _ =>
       }
+      EventStream.periodic(10000).withCurrentValueOf(ws.isConnected).foreach((_, isConnected) =>
+        if isConnected then ws.sendOne(Message.Ping)
+      )
 
     val rootElement =
       App(
@@ -60,8 +64,8 @@ object Main {
                   magnet,
                   ws.send,
                   ws.received.collect {
-                    case e: Event.TorrentMetadataReceived if e.infoHash == magnet.infoHash => e
-                    case e: Event.TorrentStats if e.infoHash == magnet.infoHash => e
+                    case e: Message.TorrentMetadataReceived if e.infoHash == magnet.infoHash => e
+                    case e: Message.TorrentStats if e.infoHash == magnet.infoHash => e
                   }
                 ).amend(
                   onMountCallback(_ => currentTorrentVar.set(Some(magnet))),
@@ -92,7 +96,7 @@ object Main {
       }
   }
 
-  def stringToEvent(value: String): Either[Throwable, Event] = Right(upickle.default.read[Event](value))
+  def readMessage(value: String): Either[Throwable, Message] = Right(upickle.default.read[Message](value))
 
-  def commandToString(command: Command): String = upickle.default.write(command)
+  def writeMessage(message: Message): String = upickle.default.write(message)
 }
