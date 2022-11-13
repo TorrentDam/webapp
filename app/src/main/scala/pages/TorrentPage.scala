@@ -7,9 +7,8 @@ import com.github.lavrov.bittorrent.app.protocol.{Command, Event}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-import squants.experimental.formatter.Formatters.InformationMetricFormatter
 import squants.information.Bytes
-import util.MagnetLink
+import util.{InformationFormatter, MagnetLink}
 import default.Config
 
 
@@ -269,7 +268,7 @@ private def modal(content: ReactiveHtmlElement[org.scalajs.dom.html.Div], close:
 }
 
 private def renderBytes(bytes: Long) =
-  InformationMetricFormatter.inBestUnit(Bytes(bytes)).rounded(1).toString
+  InformationFormatter.inBestUnit(Bytes(bytes)).rounded(1).toString
 
 private class Switch[A](default: A)(using CanEqual[A, A]) {
   private val current: Var[A] = Var(default)
