@@ -47,6 +47,6 @@ lazy val shared = project
 
 lazy val commonSettings = List(
   organization := "io.github.torrentdam.webapp",
-  scalaVersion := "3.1.0",
+  scalaVersion := "3.2.1",
   scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
 )
