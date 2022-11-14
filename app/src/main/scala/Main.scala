@@ -37,7 +37,7 @@ object Main {
     val currentTorrentVar: Var[Option[MagnetLink]] = Var(None)
 
     def runSubscriptions(using Owner): Unit =
-      ws.connected.withCurrentValueOf(currentTorrentVar).foreach {
+      ws.connected.combineWith(currentTorrentVar.signal.changes).foreach {
         case (_, Some(magnet)) =>
           ws.sendOne(Message.RequestTorrent(magnet.infoHash, magnet.trackers))
         case _ =>
