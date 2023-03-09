@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 def SearchPage(
   query: Signal[Option[String]],
 ) =
-  section(cls := "section",
+  sectionTag(cls := "section",
     onMountInsert { ctx =>
       val searchTermVar = Var(initial = "")
       searchTermVar

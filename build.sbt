@@ -9,9 +9,9 @@ lazy val app = project
   .settings(
     libraryDependencies ++= List(
       "io.github.torrentdam.server" %%% "protocol" % "3.0.0",
-      "com.raquo" %%% "laminar" % "0.14.0",
-      "com.raquo" %%% "waypoint" % "0.5.0",
-      "io.laminext" %%% "websocket" % "0.14.3",
+      "com.raquo" %%% "laminar" % "15.0.0-M7",
+      "com.raquo" %%% "waypoint" % "6.0.0-M5",
+      "io.laminext" %%% "websocket" % "0.15.0-M7",
       "io.circe" %%% "circe-parser" % "0.15.0-M1",
       "io.circe" %%% "circe-generic" % "0.15.0-M1",
       "org.typelevel" %%% "squants" % "1.8.3",

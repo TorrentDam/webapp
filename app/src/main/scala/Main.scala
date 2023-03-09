@@ -51,7 +51,7 @@ object Main {
         ws.isConnected,
         ws.connect,
         onMountCallback(ctx => runSubscriptions(using ctx.owner)),
-        child <-- SplitRender[Routing.Page, HtmlElement](Routing.router.$currentPage)
+        child <-- SplitRender[Routing.Page, HtmlElement](Routing.router.currentPageSignal)
           .collectSignal[Routing.Page.Root] { $page =>
             SearchPage(
               $page.map(_.query),
@@ -73,7 +73,7 @@ object Main {
               case _ =>
                 div("Invalid url")
           }
-          .$view
+          .signal
       )
 
     val containerNode = dom.document.querySelector("#root")

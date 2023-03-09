@@ -3,6 +3,7 @@ package default
 import com.github.lavrov.bittorrent.InfoHash
 import com.raquo.waypoint.*
 import com.raquo.laminar.api.L
+import com.raquo.laminar.api.eventPropToProcessor
 import upickle.default.*
 import urldsl.errors.DummyError
 import urldsl.vocabulary.{FromString, Printer}
@@ -56,7 +57,7 @@ object Routing {
     routeFallback = _ => Page.Root(None),
     deserializeFallback = _ => Page.Root(None),
   )(
-    $popStateEvent = L.windowEvents.onPopState,
+    popStateEvents = L.windowEvents(_.onPopState),
     owner = L.unsafeWindowOwner,
   )
 }

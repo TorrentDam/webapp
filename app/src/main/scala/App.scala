@@ -6,7 +6,7 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 def App(connected: Signal[Boolean], modifiers: Modifier[Div]*) =
   div(
-    nav(className := "navbar has-shadow is-spaced",
+    navTag(className := "navbar has-shadow is-spaced",
       div(className := "container",
         div(className := "navbar-brand",
           a(className := "navbar-item", href := "/",

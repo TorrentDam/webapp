@@ -4,7 +4,7 @@ import org.scalajs.dom
 import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.Message.{TorrentMetadataReceived, TorrentStats, RequestTorrent}
 import com.github.lavrov.bittorrent.app.protocol.{Message, Command, Event}
-import com.raquo.domtypes.generic.codecs.StringAsIsCodec
+import com.raquo.laminar.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import squants.information.Bytes
@@ -112,7 +112,7 @@ def TorrentPage(
               onMountCallback(_ => loadingVar.set(false)),
               metadata.name
             ),
-            nav(cls := "level is-mobile",
+            navTag(cls := "level is-mobile",
               div(cls := "level-left",
                 div(cls := "level-item has-text-centered mr-6",
                   div(
@@ -159,11 +159,11 @@ def TorrentPage(
   div(
     child <-- loadingVar.signal.map {
       case true =>
-        progress(cls := "progress is-primary", styleAttr := "height: 0.25rem; margin-bottom: -0.25rem")
+        progressTag(cls := "progress is-primary", styleAttr := "height: 0.25rem; margin-bottom: -0.25rem")
       case false =>
         div()
     },
-    section(cls := "section",
+    sectionTag(cls := "section",
       div(cls := "container",
         onMountCallback { ctx =>
           import ctx.owner
@@ -184,8 +184,8 @@ end TorrentPage
 
 private case class ActiveFile(name: String, src: String)
 
-private val controls = customProp("controls", StringAsIsCodec)
-private val download = customProp("download", StringAsIsCodec)
+private val controls = htmlProp[String, String]("controls", StringAsIsCodec)
+private val download = htmlProp[String, String]("download", StringAsIsCodec)
 
 private def openModal(activeFile: ActiveFile, close: Observer[Any]) = {
   val ext = activeFile.name.split('.').lastOption
@@ -215,10 +215,10 @@ private def videoModal(activeFile: ActiveFile, close: Observer[Any]) = {
   modal(
     div(cls := "card",
       div(cls := "card-image",
-        video(cls := "is-4by3",
+        videoTag(cls := "is-4by3",
           width := "100%",
           controls := "true",
-          source(
+          sourceTag(
             src := activeFile.src
           )
         )
