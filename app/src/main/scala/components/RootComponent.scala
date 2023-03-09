@@ -1,10 +1,9 @@
-package default
-
+package components
 
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
-def App(connected: Signal[Boolean], modifiers: Modifier[Div]*) =
+def RootComponent(connected: Signal[Boolean], modifiers: Modifier[Div]*) =
   div(
     navTag(className := "navbar has-shadow is-spaced",
       div(className := "container",

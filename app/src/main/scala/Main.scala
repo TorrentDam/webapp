@@ -1,14 +1,13 @@
-package default
-
 import scala.scalajs.js
-import com.github.lavrov.bittorrent.app.protocol.{Message, Command, Event}
+import com.github.lavrov.bittorrent.app.protocol.{Command, Event, Message}
 import org.scalajs.dom
 import org.scalajs.dom.console
 import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.SplitRender
 import io.laminext.websocket.*
-import pages.{SearchPage, TorrentPage}
-
+import components.{RootComponent, SearchPageComponent, TorrentPageComponent}
+import routing.Page
+import util.Config
 import scala.concurrent.ExecutionContext.Implicits.global
 import dom.experimental.serviceworkers.*
 import com.raquo.laminar.nodes.ReactiveElement
@@ -47,20 +46,20 @@ object Main {
       )
 
     val rootElement =
-      App(
+      RootComponent(
         ws.isConnected,
         ws.connect,
         onMountCallback(ctx => runSubscriptions(using ctx.owner)),
-        child <-- SplitRender[Routing.Page, HtmlElement](Routing.router.currentPageSignal)
-          .collectSignal[Routing.Page.Root] { $page =>
-            SearchPage(
+        child <-- SplitRender[Page, HtmlElement](routing.router.currentPageSignal)
+          .collectSignal[Page.Root] { $page =>
+            SearchPageComponent(
               $page.map(_.query),
             )
           }
-          .collect[Routing.Page.Torrent] { page =>
+          .collect[Page.Torrent] { page =>
             MagnetLink.fromString(page.url) match
               case Some(magnet) =>
-                TorrentPage(
+                TorrentPageComponent(
                   magnet,
                   ws.send,
                   ws.received.collect {

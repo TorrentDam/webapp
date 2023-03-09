@@ -17,7 +17,7 @@ lazy val app = project
       "org.typelevel" %%% "squants" % "1.8.3",
     ),
     Compile / scalaJSModuleInitializers ++= List(
-      ModuleInitializer.mainMethod("default.Main", "init").withModuleID("main"),
+      ModuleInitializer.mainMethod("Main", "init").withModuleID("main"),
     )
   )
   .settings(commonSettings)

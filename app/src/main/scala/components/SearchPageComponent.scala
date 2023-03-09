@@ -1,16 +1,15 @@
-package pages
+package components
 
 import com.github.lavrov.bittorrent.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.Event
 import com.raquo.laminar.api.L.*
-import default.Routing
 import util.MagnetLink
 import scodec.bits.ByteVector
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-def SearchPage(
+def SearchPageComponent(
   query: Signal[Option[String]],
 ) =
   sectionTag(cls := "section",
@@ -20,9 +19,9 @@ def SearchPage(
         .signal
         .foreach {
           case InfoHash.fromString(infoHash) =>
-            Routing.router.pushState(Routing.Page.Torrent(s"magnet:?xt=urn:btih:$infoHash"))
+            routing.router.pushState(routing.Page.Torrent(s"magnet:?xt=urn:btih:$infoHash"))
           case url @ MagnetLink.fromString.unlift(_) =>
-            Routing.router.pushState(Routing.Page.Torrent(url))
+            routing.router.pushState(routing.Page.Torrent(url))
           case _ =>
         }(ctx.owner)
       div(
@@ -43,4 +42,4 @@ def SearchPage(
       )
     },
   )
-end SearchPage
+end SearchPageComponent

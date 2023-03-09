@@ -1,4 +1,4 @@
-package pages
+package components
 
 import org.scalajs.dom
 import com.github.lavrov.bittorrent.InfoHash
@@ -8,11 +8,10 @@ import com.raquo.laminar.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import squants.information.Bytes
-import util.{InformationFormatter, MagnetLink}
-import default.Config
+import util.{Config, InformationFormatter, MagnetLink}
 
 
-def TorrentPage(
+def TorrentPageComponent(
   magnetLink: MagnetLink,
   send: Observer[RequestTorrent],
   events: EventStream[TorrentMetadataReceived | TorrentStats]
@@ -180,7 +179,7 @@ def TorrentPage(
       )
     )
   )
-end TorrentPage
+end TorrentPageComponent
 
 private case class ActiveFile(name: String, src: String)
 
