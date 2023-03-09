@@ -2,7 +2,7 @@ import org.scalajs.linker.interface.ModuleInitializer
 
 lazy val webapp = project
   .in(file("."))
-  .aggregate(app, sw)
+  .aggregate(app)
 
 lazy val app = project
   .dependsOn(shared)
@@ -18,16 +18,6 @@ lazy val app = project
     ),
     Compile / scalaJSModuleInitializers ++= List(
       ModuleInitializer.mainMethod("Main", "init").withModuleID("main"),
-    )
-  )
-  .settings(commonSettings)
-  .enablePlugins(ScalaJSPlugin)
-
-lazy val sw = project
-  .dependsOn(shared)
-  .settings(
-    Compile / scalaJSModuleInitializers ++= List(
-      ModuleInitializer.mainMethod("default.ServiceWorker", "init").withModuleID("sw"),
     )
   )
   .settings(commonSettings)

@@ -4,8 +4,7 @@ module.exports = {
   },
   mount: {
     static: "/",
-    "app/target/scala-3.2.1/app-fastopt": "/",
-    "sw/target/scala-3.2.1/sw-fastopt": "/",
+    "app/target/scala-3.2.2/app-fastopt": "/",
   },
   routes: [
     {"match": "routes", "src": ".*", "dest": "/index.html"},
