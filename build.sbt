@@ -5,7 +5,6 @@ lazy val webapp = project
   .aggregate(app)
 
 lazy val app = project
-  .dependsOn(shared)
   .settings(
     libraryDependencies ++= List(
       "io.github.torrentdam.server" %%% "protocol" % "3.0.0",
@@ -18,18 +17,6 @@ lazy val app = project
     ),
     Compile / scalaJSModuleInitializers ++= List(
       ModuleInitializer.mainMethod("Main", "init").withModuleID("main"),
-    )
-  )
-  .settings(commonSettings)
-  .enablePlugins(ScalaJSPlugin)
-
-lazy val shared = project
-  .settings(
-    libraryDependencies ++= List(
-      "io.github.torrentdam.bittorrent" %%% "common" % "1.0.0",
-      "io.circe" %%% "circe-parser" % "0.15.0-M1",
-      "io.circe" %%% "circe-generic" % "0.15.0-M1",
-      ("org.scala-js" %%% "scalajs-dom" % "2.0.0"),
     )
   )
   .settings(commonSettings)
