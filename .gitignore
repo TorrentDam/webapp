@@ -1,10 +1,15 @@
+# js
+node_modules
+
+# sbt
 target
-.idea
-.idea_modules
+
+# metals
 .metals
 .bloop
 .bsp
+
+# editors
 .vscode
-node_modules
-package-lock.json
-project/.metals.sbt
+.idea
+.idea_modules
