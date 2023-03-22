@@ -1,5 +1,5 @@
 export default {
-  server: "bittorrent-server.herokuapp.com",
+  server: "server.torrents.home.lavrov.org",
   secure: true
 //  server: "localhost:9999",
 //  secure: false

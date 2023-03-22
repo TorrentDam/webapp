@@ -1,6 +1,9 @@
 {
+  "main": "index.js",
+  "type": "module",
   "devDependencies": {
-    "snowpack": "^3.8.8"
+    "@scala-js/vite-plugin-scalajs": "^1.0.0",
+    "vite": "^4.1.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",

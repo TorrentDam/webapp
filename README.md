@@ -3,9 +3,8 @@ webapp
 
 Development
 
-    sbt ~fastLinkJS
     npm install
-    npx snowpack dev
+    npx vite
 
 Build gh-pages dist
 

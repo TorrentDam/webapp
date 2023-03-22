@@ -17,13 +17,7 @@ import scala.scalajs.js.annotation.JSImport
 
 object Main {
 
-  @js.native
-  @JSImport("@fortawesome/fontawesome-free/js/all", JSImport.Default)
-  val fontawesome: js.Object = js.native
-
   def init(): Unit = {
-
-    val _ = fontawesome
 
     dom.window.console.log(Config)
 
