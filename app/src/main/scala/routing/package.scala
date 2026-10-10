@@ -31,7 +31,7 @@ object Page {
 
 val appPathRoot = root
 
-val router = Router[Page](
+val router = new Router[Page](
   routes = List(
     Route.onlyQuery[Page.Root, List[String]](
       _.query.toList,
@@ -53,7 +53,6 @@ val router = Router[Page](
   deserializePage = pageStr => Page.fromString(pageStr),
   routeFallback = _ => Page.Root(None),
   deserializeFallback = _ => Page.Root(None),
-)(
   popStateEvents = L.windowEvents(_.onPopState),
   owner = L.unsafeWindowOwner,
 )
