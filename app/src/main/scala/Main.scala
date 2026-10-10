@@ -17,7 +17,7 @@ import scala.scalajs.js.annotation.JSImport
 
 object Main {
 
-  def init(): Unit = {
+  def main(args: Array[String]): Unit = {
 
     dom.window.console.log(Config)
 

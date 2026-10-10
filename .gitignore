@@ -13,3 +13,9 @@ target
 .vscode
 .idea
 .idea_modules
+
+# mill
+out/
+.mill/
+.bloop/
+.metals/
