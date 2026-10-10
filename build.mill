@@ -1,0 +1,21 @@
+//| mill-version: 1.1.8
+//| mill-jvm-version: temurin:21.0.6
+
+import mill.*, scalalib.*, scalajslib.*, mill.scalajslib.api.*
+
+object app extends ScalaJSModule {
+  def scalaVersion = "3.3.6"
+  def scalaJSVersion = "1.13.0"
+  def moduleKind = ModuleKind.ESModule
+  def mainClass = Some("Main")
+  def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
+  def mvnDeps = Seq(
+    mvn"io.github.torrentdam.server::protocol::3.0.0",
+    mvn"com.raquo::laminar::15.0.0-M7",
+    mvn"com.raquo::waypoint::6.0.0-M5",
+    mvn"io.laminext::websocket::0.15.0-M7",
+    mvn"io.circe::circe-parser::0.15.0-M1",
+    mvn"io.circe::circe-generic::0.15.0-M1",
+    mvn"org.typelevel::squants::1.8.3",
+  )
+}

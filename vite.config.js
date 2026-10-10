@@ -1,10 +1,17 @@
 import { defineConfig } from "vite";
-import scalaJSPlugin from "@scala-js/vite-plugin-scalajs";
+import path from "node:path";
 
-export default defineConfig({
-  build: {
-    outDir: "target/gh-pages",
-    chunkSizeWarningLimit: 5000,
-  },
-  plugins: [scalaJSPlugin()],
+export default defineConfig(({ mode }) => {
+  const task = mode === "development" ? "fastLinkJS" : "fullLinkJS";
+  return {
+    build: {
+      outDir: "target/gh-pages",
+      chunkSizeWarningLimit: 5000,
+    },
+    resolve: {
+      alias: {
+        "scalajs:main.js": path.resolve(`out/app/${task}.dest/main.js`),
+      },
+    },
+  };
 });
