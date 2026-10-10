@@ -29,6 +29,7 @@ jobs:
           push: true
           tags: ghcr.io/torrentdam/web:${{ github.sha }}
       - name: Publish gh-pages
+        if: github.ref == 'refs/heads/master'
         uses: peaceiris/actions-gh-pages@v3.7.3
         with:
           deploy_key: ${{ secrets.GH_PAGES_DEPLOY_KEY }}
