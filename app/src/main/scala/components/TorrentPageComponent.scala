@@ -214,13 +214,7 @@ private def videoModal(activeFile: ActiveFile, close: Observer[Any]) = {
   modal(
     div(cls := "card",
       div(cls := "card-image",
-        videoTag(cls := "is-4by3",
-          width := "100%",
-          controls := "true",
-          sourceTag(
-            src := activeFile.src
-          )
-        )
+        VideoPlayerComponent(activeFile.name, activeFile.src)
       ),
       div(cls := "card-content",
         div(cls := "media",

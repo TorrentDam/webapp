@@ -15,3 +15,9 @@
     0% { transform: translateY(-3px); }
     100% { transform: translateY(+3px); }
 }
+.video-player media-player {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: black;
+    border-radius: 6px;
+}

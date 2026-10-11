@@ -1,3 +1,6 @@
 import './style.css'
 import '@fortawesome/fontawesome-free/js/all'
+import 'vidstack/player/styles/default/theme.css'
+import 'vidstack/player/styles/default/layouts/video.css'
+import 'vidstack/elements'
 import 'scalajs:main.js'
