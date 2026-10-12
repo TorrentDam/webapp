@@ -7,6 +7,9 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "target/gh-pages",
       chunkSizeWarningLimit: 5000,
+      rollupOptions: {
+        external: ["/config.js"],
+      },
     },
     resolve: {
       alias: {
