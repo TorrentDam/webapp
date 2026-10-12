@@ -1,5 +1,5 @@
 export default {
-  server: "server.torrents.home.lavrov.org",
+  server: "server.torrents.lavrov.nl",
   secure: true
 //  server: "localhost:9999",
 //  secure: false
