@@ -1,7 +1,7 @@
 package components
 
 import org.scalajs.dom
-import com.github.lavrov.bittorrent.InfoHash
+import com.github.lavrov.bittorrent.app.protocol.InfoHash
 import com.github.lavrov.bittorrent.app.protocol.Message.{TorrentMetadataReceived, TorrentStats, RequestTorrent}
 import com.github.lavrov.bittorrent.app.protocol.{Message, Command, Event}
 import com.raquo.laminar.codecs.StringAsIsCodec

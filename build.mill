@@ -12,12 +12,10 @@ object app extends ScalaJSModule {
   def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
 
   def mvnDeps = Seq(
-    mvn"io.github.torrentdam.server::protocol::3.0.0",
+    mvn"io.github.torrentdam.server::protocol::4.0.0",
     mvn"com.raquo::laminar::17.2.1",
     mvn"com.raquo::waypoint::9.0.0",
     mvn"io.laminext::websocket::0.17.0",
-    mvn"io.circe::circe-parser::0.14.13",
-    mvn"io.circe::circe-generic::0.14.13",
     mvn"org.typelevel::squants::1.8.3",
   )
 }
