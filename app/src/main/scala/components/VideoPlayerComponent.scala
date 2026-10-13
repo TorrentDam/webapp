@@ -11,11 +11,19 @@ def VideoPlayerComponent(name: String, src: String): ReactiveHtmlElement[dom.htm
   val mediaProviderTag = new CustomHtmlTag[dom.html.Element]("media-provider")
   val mediaVideoLayoutTag = new CustomHtmlTag[dom.html.Element]("media-video-layout")
 
+  // The data URL has no file extension, so vidstack cannot infer the media type
+  // and falls back to a HEAD probe the torrent server does not answer. A fake
+  // extension in an ignored query parameter makes inference succeed; the browser
+  // sniffs the actual container regardless of the declared type.
+  val srcWithTypeHint =
+    val separator = if src.contains("?") then "&" else "?"
+    s"$src${separator}v=.mp4"
+
   div(
     cls := "video-player",
     mediaPlayerTag(
       titleAttr := name,
-      srcAttr := src,
+      srcAttr := srcWithTypeHint,
       playsInlineAttr := "true",
       loadAttr := "visible",
       viewTypeAttr := "video",
