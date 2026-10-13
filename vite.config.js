@@ -4,11 +4,12 @@ import path from "node:path";
 export default defineConfig(({ mode }) => {
   const task = mode === "development" ? "fastLinkJS" : "fullLinkJS";
   return {
+    base: "./",
     build: {
       outDir: "target/gh-pages",
       chunkSizeWarningLimit: 5000,
       rollupOptions: {
-        external: ["/config.js"],
+        input: path.resolve("index.html"),
       },
     },
     resolve: {

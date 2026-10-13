@@ -77,12 +77,12 @@ object Main {
 
     dom.window.navigator.asInstanceOf[js.Dynamic].registerProtocolHandler(
       "magnet",
-      s"${location.protocol}//${location.host}/torrent?url=%s",
+      s"${location.protocol}//${location.host}${Config.basePath}/torrent?url=%s",
       "TorrentDam"
     )
 
     dom.window.navigator.serviceWorker
-      .register("/sw.js")
+      .register(Config.relativeUrl("sw.js"))
       .toFuture
       .foreach { registration =>
         console.log("ServiceWorker registered")

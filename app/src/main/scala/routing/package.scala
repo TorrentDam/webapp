@@ -8,6 +8,7 @@ import routing.Page.{Root, Torrent}
 import upickle.default.*
 import urldsl.errors.DummyError
 import urldsl.vocabulary.{FromString, Printer}
+import util.Config
 import util.MagnetLink
 
 enum Page {
@@ -36,12 +37,14 @@ val router = new Router[Page](
     Route.onlyQuery[Page.Root, List[String]](
       _.query.toList,
       query => Page.Root(query.headOption),
-      pattern = (appPathRoot / endOfSegments) ? listParam[String]("q")
+      pattern = (appPathRoot / endOfSegments) ? listParam[String]("q"),
+      basePath = Config.basePath
     ),
     Route.onlyQuery[Page.Torrent, String](
       _.url,
       url => Page.Torrent(url),
-      pattern = (appPathRoot / "torrent") ? param[String]("url")
+      pattern = (appPathRoot / "torrent") ? param[String]("url"),
+      basePath = Config.basePath
     )
   ),
   getPageTitle = {
