@@ -1,31 +1,22 @@
 package util
 
 import scala.scalajs.js
+import scala.scalajs.js.annotation.JSGlobal
+
+@js.native
+@JSGlobal("__config")
+object JsConfig extends js.Object {
+  def server: String = js.native
+  def secure: Boolean = js.native
+  def basePath: String = js.native
+}
 
 object Config {
-  private val rawConfig = js.Dynamic.global.__config.asInstanceOf[js.Dictionary[js.Any]]
-  private val server = rawConfig("server").asInstanceOf[String]
-  private val secure = rawConfig("secure").asInstanceOf[Boolean]
+  private val httpBase = (if JsConfig.secure then "https" else "http") + "://" + JsConfig.server
+  private val websocketBase = (if JsConfig.secure then "wss" else "ws") + "://" + JsConfig.server
 
-  private val httpBase = (if secure then "https" else "http") + "://" + server
-  private val websocketBase = (if secure then "wss" else "ws") + "://" + server
-
-  private val configScript = js.Dynamic.global.document.querySelector("""script[data-role="config"]""")
-
-  private val configPath: Option[String] = Option(configScript).flatMap { script =>
-    val src = script.asInstanceOf[js.Dynamic].src.asInstanceOf[String]
-    val schemeEnd = src.indexOf("://")
-    if schemeEnd < 0 then None
-    else
-      val pathStart = src.indexOf('/', schemeEnd + 3)
-      if pathStart < 0 then None else Some(src.substring(pathStart))
-  }
-
-  val basePath: String = configPath.fold("") { path =>
-    val withoutTrailingSlash = if path.endsWith("/") then path.substring(0, path.length - 1) else path
-    val directory = withoutTrailingSlash.substring(0, withoutTrailingSlash.lastIndexOf('/') + 1)
-    if directory == "/" then "" else directory
-  }
+  val basePath: String =
+    if JsConfig.basePath == "/" then "" else JsConfig.basePath
 
   def httpUrl(path: String): String = s"$httpBase/$path"
   def websocketUrl(path: String): String = s"$websocketBase/$path"
