@@ -1,11 +1,24 @@
 name: CI
 on: [push]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  packages: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         run: make prepare-gh-pages
       - name: Set up QEMU
@@ -28,11 +41,15 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/torrentdam/web:${{ github.sha }}
+      - name: Configure Pages
+        if: github.ref == 'refs/heads/master'
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: target/gh-pages
       - name: Publish gh-pages
         if: github.ref == 'refs/heads/master'
-        uses: peaceiris/actions-gh-pages@v3.7.3
-        with:
-          deploy_key: ${{ secrets.GH_PAGES_DEPLOY_KEY }}
-          external_repository: TorrentDam/TorrentDam.github.io
-          publish_branch: gh-pages
-          publish_dir: target/gh-pages
+        id: deployment
+        uses: actions/deploy-pages@v4
