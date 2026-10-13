@@ -1,7 +1,7 @@
 package util
 
 import scala.scalajs.js.URIUtils
-import com.github.lavrov.bittorrent.InfoHash
+import com.github.lavrov.bittorrent.app.protocol.InfoHash
 
 case class MagnetLink(infoHash: InfoHash, displayName: Option[String], trackers: List[String])
 
@@ -24,7 +24,7 @@ object MagnetLink {
 
   private def getInfoHash(query: Query): Option[InfoHash] =
     query.get("xt").flatMap {
-      case List(s"urn:btih:${InfoHash.fromString(ih)}") => Some(ih)
+      case List(s"urn:btih:$value") => InfoHash.fromString(value)
       case _ => None
     }
 

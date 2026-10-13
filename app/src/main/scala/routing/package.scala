@@ -1,6 +1,6 @@
 package routing
 
-import com.github.lavrov.bittorrent.InfoHash
+import com.github.lavrov.bittorrent.app.protocol.InfoHash
 import com.raquo.laminar.api.{L, eventPropToProcessor}
 import com.raquo.waypoint.*
 import routing.Page
