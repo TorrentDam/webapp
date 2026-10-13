@@ -2,14 +2,15 @@ package components
 
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import util.Config
 
 def RootComponent(connected: Signal[Boolean], modifiers: Modifier[Div]*) =
   div(
     navTag(className := "navbar has-shadow is-spaced",
       div(className := "container",
         div(className := "navbar-brand",
-          a(className := "navbar-item", href := "/",
-            img(className := "logo", src := "/images/windmill.svg"),
+          a(className := "navbar-item", href := Config.relativeUrl("/"),
+            img(className := "logo", src := Config.relativeUrl("images/windmill.svg")),
             span(className := "title", "TorrentDam")
           ),
           div(className := "navbar-item",
