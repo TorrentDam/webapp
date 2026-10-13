@@ -14,9 +14,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - name: Build
@@ -41,15 +38,33 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/torrentdam/web:${{ github.sha }}
-      - name: Configure Pages
+      - name: Upload site artifact
         if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gh-pages-site
+          path: target/gh-pages
+          retention-days: 1
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: gh-pages-site
+          path: target/gh-pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v3
         with:
           path: target/gh-pages
       - name: Publish gh-pages
-        if: github.ref == 'refs/heads/master'
         id: deployment
         uses: actions/deploy-pages@v4
