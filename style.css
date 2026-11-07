@@ -202,7 +202,19 @@ html[data-theme="dark"] .navbar .logo {
     position: relative;
 }
 
-/* vidstack shifts the buffering indicator on small layouts; keep the spinner centered */
-.video-player .vds-video-layout[data-sm] .vds-buffering-indicator {
+/* keep the loading spinner centered in the player in every vidstack layout
+   (vidstack shifts the [data-sm] buffering indicator with a translate) */
+.video-player .vds-buffering-indicator {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: none;
+}
+
+.video-player .vds-buffering-indicator .vds-buffering-spinner,
+.video-player .vds-buffering-indicator .vds-buffering-icon {
+    margin: 0;
     transform: none;
 }
