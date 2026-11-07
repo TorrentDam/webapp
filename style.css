@@ -71,6 +71,44 @@ html[data-theme="dark"] .navbar .logo {
     border-radius: 50%;
 }
 
+/* keep connection status and theme toggle inside the header row on all screen sizes */
+.navbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* always-horizontal stats row (Bulma .level stacks its items on mobile) */
+.stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.stat {
+    text-align: center;
+}
+
+.toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.file-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.player-title {
+    word-break: break-all;
+}
+
 .hero.is-primary {
     background-image: linear-gradient(160deg, var(--bulma-primary) 0%, var(--bulma-link) 100%);
 }
@@ -103,9 +141,21 @@ html[data-theme="dark"] .navbar .logo {
     0% { transform: translateY(-3px); }
     100% { transform: translateY(+3px); }
 }
+.video-player {
+    max-width: 100%;
+    overflow: hidden;
+}
+
 .video-player media-player {
     width: 100%;
+    min-width: 0;
     aspect-ratio: 16 / 9;
     background-color: black;
     border-radius: 6px;
+    position: relative;
+}
+
+/* vidstack shifts the buffering indicator on small layouts; keep the spinner centered */
+.video-player .vds-video-layout[data-sm] .vds-buffering-indicator {
+    transform: none;
 }
