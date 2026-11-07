@@ -3,9 +3,18 @@ package util
 import scala.scalajs.js.URIUtils
 import com.github.lavrov.bittorrent.app.protocol.InfoHash
 
-case class MagnetLink(infoHash: InfoHash, displayName: Option[String], trackers: List[String])
+case class MagnetLink(infoHash: InfoHash, displayName: Option[String], trackers: List[String]) {
+  def toMagnetUri: String = MagnetLink.toMagnetUri(this)
+}
 
 object MagnetLink {
+
+  def toMagnetUri(link: MagnetLink): String = {
+    val xt = s"xt=urn:btih:${link.infoHash}"
+    val dn = link.displayName.map(name => s"dn=${URIUtils.encodeURIComponent(name)}").toList
+    val tr = link.trackers.map(tracker => s"tr=${URIUtils.encodeURIComponent(tracker)}")
+    (s"magnet:?" +: (xt :: dn ::: tr)).mkString("&")
+  }
 
   def fromString(source: String): Option[MagnetLink] =
     source match

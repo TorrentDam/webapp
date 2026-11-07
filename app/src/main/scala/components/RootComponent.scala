@@ -1,34 +1,53 @@
 package components
 
 import com.raquo.laminar.api.L.*
-import com.raquo.laminar.nodes.ReactiveHtmlElement
-import util.Config
+import util.{Config, Theme}
 
-def RootComponent(connected: Signal[Boolean], modifiers: Modifier[Div]*) =
-  div(
-    navTag(className := "navbar has-shadow is-spaced",
-      div(className := "container",
-        div(className := "navbar-brand",
-          a(className := "navbar-item", href := Config.relativeUrl("/"),
-            img(className := "logo", src := Config.relativeUrl("images/windmill.svg")),
-            span(className := "title", "TorrentDam")
-          ),
-          div(className := "navbar-item",
-            span(className := "tags has-addons",
-              className.toggle("is-hidden") <-- EventStream.fromValue(false).delay(1000).startWith(true),
-              span(className := "tag", "connected"),
-              span(className := "tag",
-                className <-- connected.map(if _ then "is-success" else "is-danger"),
-                child <-- connected.map(if _ then "yes" else "no")
+def RootComponent(connected: Signal[Boolean], reconnect: Observer[Any], modifiers: Modifier[Div]*) =
+  div(cls := "app-root",
+    navTag(cls := "navbar has-shadow", role := "navigation", aria.label := "Main navigation",
+      div(cls := "container",
+        div(cls := "navbar-brand",
+          a(cls := "navbar-item", href := Config.relativeUrl("/"),
+            img(cls := "logo", src := Config.relativeUrl("images/windmill.svg"), alt := "TorrentDam logo"),
+            span(cls := "title mb-0", "TorrentDam")
+          )
+        ),
+        div(cls := "navbar-menu is-active",
+          div(cls := "navbar-end is-flex is-align-items-center is-gap-3",
+            a(cls := "connection-pill",
+              role := "button",
+              aria.label := "Connection status, click to reconnect",
+              title := "Click to reconnect",
+              onClick --> reconnect,
+              span(cls := "connection-dot",
+                cls.toggle("is-online") <-- connected,
+                cls.toggle("is-offline") <-- connected.map(!_)
+              ),
+              span(cls := "connection-label is-hidden-mobile",
+                child <-- connected.map(if _ then "Connected" else "Disconnected")
+              )
+            ),
+            button(cls := "button is-small is-ghost theme-toggle",
+              aria.label := "Toggle dark mode",
+              title := "Toggle dark mode",
+              onClick --> Theme.toggle,
+              span(cls := "icon",
+                child <-- Theme.isDark.signal.map(if _ then Icons.sun else Icons.moon)
               )
             )
           )
         )
       )
+    ),
+  ).amend(modifiers: _*).amend(
+    footerTag(cls := "footer",
+      div(cls := "content has-text-centered",
+        p(
+          strong("TorrentDam"),
+          " — stream torrents straight from the swarm in your browser. ",
+          a(href := "https://github.com/TorrentDam", target := "_blank", rel := "noopener", "Source on GitHub")
+        )
+      )
     )
-  ).amend(modifiers)
-
-enum IndexStatus {
-  case NotSupported
-  case Supported(ready: Signal[Boolean])
-}
+  )

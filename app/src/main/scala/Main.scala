@@ -1,5 +1,5 @@
 import scala.scalajs.js
-import com.github.lavrov.bittorrent.app.protocol.{Command, Event, Message}
+import com.github.lavrov.bittorrent.app.protocol.{Command, Event, InfoHash, Message}
 import org.scalajs.dom
 import org.scalajs.dom.console
 import com.raquo.laminar.api.L.*
@@ -7,7 +7,7 @@ import com.raquo.waypoint.SplitRender
 import io.laminext.websocket.*
 import components.{RootComponent, SearchPageComponent, TorrentPageComponent}
 import routing.Page
-import util.Config
+import util.{Config, Theme}
 import scala.concurrent.ExecutionContext.Implicits.global
 import dom.experimental.serviceworkers.*
 import com.raquo.laminar.nodes.ReactiveElement
@@ -19,6 +19,8 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 
+    Theme.init()
+
     dom.window.console.log(Config)
 
     val ws = WebSocket
@@ -28,6 +30,7 @@ object Main {
       .build()
 
     val currentTorrentVar: Var[Option[MagnetLink]] = Var(None)
+    val torrentMetadataCache: Var[Map[InfoHash, Message.TorrentMetadataReceived]] = Var(Map.empty)
 
     def runSubscriptions(using Owner): Unit =
       ws.connected.combineWith(currentTorrentVar.signal.changes).foreach {
@@ -42,6 +45,7 @@ object Main {
     val rootElement =
       RootComponent(
         ws.isConnected,
+        ws.reconnect,
         ws.connect,
         onMountCallback(ctx => runSubscriptions(using ctx.owner)),
         child <-- SplitRender[Page, HtmlElement](routing.router.currentPageSignal)
@@ -59,7 +63,10 @@ object Main {
                   ws.received.collect {
                     case e: Message.TorrentMetadataReceived if e.infoHash == magnet.infoHash => e
                     case e: Message.TorrentStats if e.infoHash == magnet.infoHash => e
-                  }
+                    case e: Message.TorrentError if e.infoHash == magnet.infoHash => e
+                  },
+                  page.file,
+                  torrentMetadataCache
                 ).amend(
                   onMountCallback(_ => currentTorrentVar.set(Some(magnet))),
                 )
