@@ -7,7 +7,7 @@ import com.raquo.waypoint.SplitRender
 import io.laminext.websocket.*
 import components.{RootComponent, SearchPageComponent, TorrentPageComponent}
 import routing.Page
-import util.Config
+import util.{Config, Theme}
 import scala.concurrent.ExecutionContext.Implicits.global
 import dom.experimental.serviceworkers.*
 import com.raquo.laminar.nodes.ReactiveElement
@@ -18,6 +18,8 @@ import scala.scalajs.js.annotation.JSImport
 object Main {
 
   def main(args: Array[String]): Unit = {
+
+    Theme.init()
 
     dom.window.console.log(Config)
 
@@ -42,6 +44,7 @@ object Main {
     val rootElement =
       RootComponent(
         ws.isConnected,
+        ws.reconnect,
         ws.connect,
         onMountCallback(ctx => runSubscriptions(using ctx.owner)),
         child <-- SplitRender[Page, HtmlElement](routing.router.currentPageSignal)
@@ -59,6 +62,7 @@ object Main {
                   ws.received.collect {
                     case e: Message.TorrentMetadataReceived if e.infoHash == magnet.infoHash => e
                     case e: Message.TorrentStats if e.infoHash == magnet.infoHash => e
+                    case e: Message.TorrentError if e.infoHash == magnet.infoHash => e
                   }
                 ).amend(
                   onMountCallback(_ => currentTorrentVar.set(Some(magnet))),

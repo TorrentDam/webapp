@@ -50,6 +50,8 @@ val router = new Router[Page](
   getPageTitle = {
     case Page.Torrent(MagnetLink.fromString.unlift(MagnetLink(_, Some(displayName), _))) =>
       displayName + " - TorrentDam"
+    case Page.Torrent(url) =>
+      MagnetLink.fromString(url).map(m => s"${m.infoHash.toString.take(8)}… - TorrentDam").getOrElse("TorrentDam")
     case _ => "TorrentDam"
   },
   serializePage = page => Page.toString(page),
