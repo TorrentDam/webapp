@@ -64,28 +64,21 @@ def TorrentPageComponent(
     val fileName = file.path.last
     val ext = fileName.split('.').lastOption.filter(_.length <= 5).map(_.toUpperCase).getOrElse("FILE")
     val copyKey = s"file:$index"
-    div(cls := "media file-row",
-      div(cls := "media-left",
-        span(cls := "icon has-text-grey", fileIcon(fileName))
-      ),
-      div(cls := "media-content",
-        p(cls := "subtitle is-6 mb-1",
-          a(
-            file.path.mkString,
-            onClick.mapTo((index, fileName)) --> fileClickObserver,
-          )
+    div(cls := "file-row",
+      div(cls := "file-row-main",
+        span(cls := "icon has-text-grey", fileIcon(fileName)),
+        a(cls := "file-name subtitle is-6", file.path.mkString,
+          onClick.mapTo((index, fileName)) --> fileClickObserver,
         ),
-        div(cls := "is-flex is-align-items-center is-gap-2",
-          progressTag(cls := "progress is-small is-primary file-availability",
-            valueAttr <-- availabilityPercent(index).map(_.toString),
-            maxAttr := "100"
-          ),
-          span(cls := "is-size-7 has-text-grey", child <-- availabilityPercent(index).map(p => s"$p%"))
-        )
+        span(cls := "is-size-7 has-text-grey file-size", renderBytes(file.size))
       ),
-      div(cls := "media-right",
+      div(cls := "file-row-sub",
+        progressTag(cls := "progress is-small is-primary file-availability",
+          valueAttr <-- availabilityPercent(index).map(_.toString),
+          maxAttr := "100"
+        ),
+        span(cls := "is-size-7 has-text-grey", child <-- availabilityPercent(index).map(p => s"$p%")),
         div(cls := "file-actions",
-          span(cls := "is-size-7", renderBytes(file.size)),
           a(cls := "button is-small is-light",
             href := videoUrl(index),
             target := "_blank",
