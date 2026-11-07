@@ -1,5 +1,5 @@
 import scala.scalajs.js
-import com.github.lavrov.bittorrent.app.protocol.{Command, Event, Message}
+import com.github.lavrov.bittorrent.app.protocol.{Command, Event, InfoHash, Message}
 import org.scalajs.dom
 import org.scalajs.dom.console
 import com.raquo.laminar.api.L.*
@@ -30,6 +30,7 @@ object Main {
       .build()
 
     val currentTorrentVar: Var[Option[MagnetLink]] = Var(None)
+    val torrentMetadataCache: Var[Map[InfoHash, Message.TorrentMetadataReceived]] = Var(Map.empty)
 
     def runSubscriptions(using Owner): Unit =
       ws.connected.combineWith(currentTorrentVar.signal.changes).foreach {
@@ -63,7 +64,9 @@ object Main {
                     case e: Message.TorrentMetadataReceived if e.infoHash == magnet.infoHash => e
                     case e: Message.TorrentStats if e.infoHash == magnet.infoHash => e
                     case e: Message.TorrentError if e.infoHash == magnet.infoHash => e
-                  }
+                  },
+                  page.file,
+                  torrentMetadataCache
                 ).amend(
                   onMountCallback(_ => currentTorrentVar.set(Some(magnet))),
                 )

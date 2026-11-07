@@ -6,7 +6,8 @@ import com.github.lavrov.bittorrent.app.protocol.Message.{TorrentError, TorrentM
 import com.github.lavrov.bittorrent.app.protocol.{Message, Event}
 import com.raquo.laminar.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.*
-import com.raquo.laminar.nodes.ReactiveHtmlElement
+import com.raquo.laminar.nodes.{ReactiveHtmlElement, ReactiveSvgElement}
+import routing.Page
 import squants.information.Bytes
 import util.{Config, InformationFormatter, MagnetLink}
 
@@ -14,7 +15,9 @@ import util.{Config, InformationFormatter, MagnetLink}
 def TorrentPageComponent(
   magnetLink: MagnetLink,
   send: Observer[RequestTorrent],
-  events: EventStream[TorrentMetadataReceived | TorrentStats | TorrentError]
+  events: EventStream[TorrentMetadataReceived | TorrentStats | TorrentError],
+  fileIndex: Option[Int],
+  metadataCache: Var[Map[InfoHash, TorrentMetadataReceived]]
 ) =
   val infoHash = magnetLink.infoHash
 
@@ -22,11 +25,13 @@ def TorrentPageComponent(
 
   val showModalVar = Var(Option.empty[ActiveFile])
   val loadingVar = Var(true)
-  val torrentMetadataVar = Var(Option.empty[TorrentMetadataReceived])
+  val torrentMetadataVar = Var(metadataCache.now().get(infoHash))
   val torrentStatsVar = Var(Option.empty[TorrentStats])
   val torrentErrorVar = Var(Option.empty[String])
   val fileFilterVar = Var("")
   val copiedVar = Var(Option.empty[String])
+
+  val navigateObserver = Observer[Page](page => routing.router.pushState(page))
 
   val connectedPeerCount = torrentStatsVar.signal.map(_.map(_.connected).getOrElse(0))
 
@@ -41,6 +46,13 @@ def TorrentPageComponent(
 
   def videoUrl(index: Int) =
     Config.httpUrl(s"torrent/$infoHash/data/$index")
+
+  val fileClickObserver = Observer[(Int, String)] { case (index, name) =>
+    if isVideoFile(name) then
+      routing.router.pushState(Page.Torrent(magnetLink.toMagnetUri, Some(index)))
+    else
+      showModalVar.set(Some(ActiveFile(name, videoUrl(index))))
+  }
 
   val copyTextObserver = Observer[(String, String)] { case (key, text) =>
     dom.window.navigator.clipboard.writeText(text)
@@ -60,7 +72,7 @@ def TorrentPageComponent(
         p(cls := "subtitle is-6 mb-1",
           a(
             file.path.mkString,
-            onClick.mapTo(ActiveFile(fileName, videoUrl(index))).map(Some(_)) --> showModalVar,
+            onClick.mapTo((index, fileName)) --> fileClickObserver,
           )
         ),
         div(cls := "is-flex is-align-items-center is-gap-2",
@@ -220,12 +232,66 @@ def TorrentPageComponent(
       )
     )
 
+  def playerView(metadata: TorrentMetadataReceived, index: Int) =
+    val file = metadata.files(index)
+    val fileName = file.path.last
+    val videoIndices = metadata.files.zipWithIndex.collect { case (f, i) if isVideoFile(f.path.last) => i }
+    val pos = videoIndices.indexOf(index)
+    val prev = if pos > 0 then Some(videoIndices(pos - 1)) else None
+    val next = if pos >= 0 && pos < videoIndices.size - 1 then Some(videoIndices(pos + 1)) else None
+    def navButton(label: String, icon: ReactiveSvgElement[org.scalajs.dom.SVGSVGElement], target: Option[Int]) =
+      button(cls := "button is-light",
+        disabled := target.isEmpty,
+        onClick.mapTo(target).filter(_.isDefined).map(i => Page.Torrent(magnetLink.toMagnetUri, i)) --> navigateObserver,
+        span(cls := "icon", icon),
+        span(label)
+      )
+    div(
+      onMountCallback(_ => loadingVar.set(false)),
+      navTag(cls := "level is-mobile mb-4",
+        div(cls := "level-left",
+          button(cls := "button is-light",
+            onClick.mapTo(Page.Torrent(magnetLink.toMagnetUri, None)) --> navigateObserver,
+            span(cls := "icon", Icons.chevronLeft),
+            span("All files")
+          )
+        ),
+        div(cls := "level-right",
+          div(cls := "buttons",
+            a(cls := "button is-light",
+              href := videoUrl(index),
+              target := "_blank",
+              download := fileName,
+              span(cls := "icon", Icons.download),
+              span("Download")
+            ),
+            button(cls := "button is-light",
+              cls.toggle("is-success") <-- copiedVar.signal.map(_.contains("player")),
+              onClick.mapTo(("player", videoUrl(index))) --> copyTextObserver,
+              span(cls := "icon", Icons.clipboard),
+              span(child <-- copiedVar.signal.map(c => if c.contains("player") then "Copied!" else "Copy URL"))
+            )
+          )
+        )
+      ),
+      h4(cls := "title is-4", fileName),
+      VideoPlayerComponent(fileName, videoUrl(index)),
+      navTag(cls := "level mt-4",
+        div(cls := "level-left", navButton("Previous", Icons.chevronLeft, prev)),
+        div(cls := "level-right", navButton("Next", Icons.chevronRight, next))
+      )
+    )
+
   val content =
     torrentMetadataVar.signal.combineWith(torrentErrorVar.signal).map { (metadata, error) =>
       val notification = error.map(errorNotification).toList
-      val body = metadata match {
-        case Some(md) => List(mainContent(md))
-        case None => if error.isEmpty then List(loadingSkeleton) else Nil
+      val body = (fileIndex, metadata) match {
+        case (Some(i), Some(md)) if md.files.indices.contains(i) && isVideoFile(md.files(i).path.last) =>
+          List(playerView(md, i))
+        case (_, Some(md)) =>
+          List(mainContent(md))
+        case (_, None) =>
+          if error.isEmpty then List(loadingSkeleton) else Nil
       }
       notification ++ body
     }
@@ -243,7 +309,9 @@ def TorrentPageComponent(
           import ctx.owner
           events.foreach {
             case e: TorrentStats => torrentStatsVar.set(Some(e))
-            case e: TorrentMetadataReceived => torrentMetadataVar.set(Some(e))
+            case e: TorrentMetadataReceived =>
+              torrentMetadataVar.set(Some(e))
+              metadataCache.update(_.updated(e.infoHash, e))
             case e: TorrentError => torrentErrorVar.set(Some(e.message))
           }
         },
@@ -264,6 +332,9 @@ private val download = htmlProp[String, String]("download", StringAsIsCodec)
 private val valueAttr = htmlAttr[String]("value", StringAsIsCodec)
 private val maxAttr = htmlAttr[String]("max", StringAsIsCodec)
 
+private def isVideoFile(name: String) =
+  name.split('.').lastOption.map(_.toLowerCase).exists(Set("mp4", "avi", "webm", "mkv", "mov", "m4v"))
+
 private def fileIcon(name: String) =
   name.split('.').lastOption.map(_.toLowerCase) match
     case Some("mp4" | "avi" | "webm" | "mkv" | "mov" | "m4v") => Icons.play
@@ -276,10 +347,10 @@ private def openModal(
   copied: Signal[Option[String]],
   close: Observer[Any]
 ) = {
-  val ext = activeFile.name.split('.').lastOption
+  val ext = activeFile.name.split('.').lastOption.map(_.toLowerCase)
   ext match {
-    case Some("mp4" | "avi" | "webm" | "mkv") => videoModal(activeFile, copyText, copied, close)
-    case Some("jpeg" | "jpg" | "png" | "gif") => imageModal(activeFile, copyText, copied, close)
+    case Some(_) if isVideoFile(activeFile.name) => videoModal(activeFile, copyText, copied, close)
+    case Some("jpeg" | "jpg" | "png" | "gif" | "webp" | "bmp") => imageModal(activeFile, copyText, copied, close)
     case _ => genericModal(activeFile, copyText, copied, close)
   }
 }
