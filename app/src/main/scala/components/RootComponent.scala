@@ -13,8 +13,7 @@ def RootComponent(connected: Signal[Boolean], reconnect: Observer[Any], modifier
             span(cls := "title mb-0", "TorrentDam")
           )
         ),
-        div(cls := "navbar-menu is-active",
-          div(cls := "navbar-end is-flex is-align-items-center is-gap-3",
+        div(cls := "navbar-actions",
             a(cls := "connection-pill",
               role := "button",
               aria.label := "Connection status, click to reconnect",
@@ -36,7 +35,6 @@ def RootComponent(connected: Signal[Boolean], reconnect: Observer[Any], modifier
                 child <-- Theme.isDark.signal.map(if _ then Icons.sun else Icons.moon)
               )
             )
-          )
         )
       )
     ),

@@ -84,26 +84,20 @@ def TorrentPageComponent(
         )
       ),
       div(cls := "media-right",
-        div(cls := "level level-right",
-          p(cls := "level-item",
-            span(cls := "is-size-7", renderBytes(file.size))
+        div(cls := "file-actions",
+          span(cls := "is-size-7", renderBytes(file.size)),
+          a(cls := "button is-small is-light",
+            href := videoUrl(index),
+            target := "_blank",
+            download := fileName,
+            span(cls := "icon", Icons.download),
+            span("Download")
           ),
-          p(cls := "level-item",
-            a(cls := "button is-small is-light",
-              href := videoUrl(index),
-              target := "_blank",
-              download := fileName,
-              span(cls := "icon", Icons.download),
-              span("Download")
-            )
-          ),
-          p(cls := "level-item",
-            button(cls := "button is-small is-light",
-              cls.toggle("is-success") <-- copiedVar.signal.map(_.contains(copyKey)),
-              onClick.mapTo((copyKey, videoUrl(index))) --> copyTextObserver,
-              span(cls := "icon", Icons.clipboard),
-              span(child <-- copiedVar.signal.map(c => if c.contains(copyKey) then "Copied!" else "Copy URL"))
-            )
+          button(cls := "button is-small is-light",
+            cls.toggle("is-success") <-- copiedVar.signal.map(_.contains(copyKey)),
+            onClick.mapTo((copyKey, videoUrl(index))) --> copyTextObserver,
+            span(cls := "icon", Icons.clipboard),
+            span(child <-- copiedVar.signal.map(c => if c.contains(copyKey) then "Copied!" else "Copy URL"))
           )
         )
       )
@@ -189,28 +183,19 @@ def TorrentPageComponent(
         onMountCallback(_ => loadingVar.set(false)),
         metadata.name
       ),
-      navTag(cls := "level is-mobile",
-        div(cls := "level-left",
-          div(cls := "level-item has-text-centered mr-6",
-            div(
-              p(cls := "heading", "Files"),
-              p(cls := "subtitle", metadata.files.size)
-            )
-          ),
-          div(cls := "level-item has-text-centered  mr-6",
-            div(
-              p(cls := "heading", "Size"),
-              p(cls := "subtitle", renderBytes(metadata.files.map(_.size).sum))
-            )
-          ),
-          div(cls := "level-item has-text-centered",
-            div(
-              p(cls := "heading", "Peers"),
-              p(cls := "subtitle", child <-- connectedPeerCount.map(_.toString))
-            )
-          )
+      div(cls := "stats-row mb-4",
+        div(cls := "stat",
+          p(cls := "heading", "Files"),
+          p(cls := "subtitle", metadata.files.size)
         ),
-        div(cls := "level-right")
+        div(cls := "stat",
+          p(cls := "heading", "Size"),
+          p(cls := "subtitle", renderBytes(metadata.files.map(_.size).sum))
+        ),
+        div(cls := "stat",
+          p(cls := "heading", "Peers"),
+          p(cls := "subtitle", child <-- connectedPeerCount.map(_.toString))
+        )
       ),
       div(cls := "tabs",
         ul(
@@ -248,37 +233,33 @@ def TorrentPageComponent(
       )
     div(
       onMountCallback(_ => loadingVar.set(false)),
-      navTag(cls := "level is-mobile mb-4",
-        div(cls := "level-left",
-          button(cls := "button is-light",
-            onClick.mapTo(Page.Torrent(magnetLink.toMagnetUri, None)) --> navigateObserver,
-            span(cls := "icon", Icons.chevronLeft),
-            span("All files")
-          )
+      div(cls := "toolbar-row mb-4",
+        button(cls := "button is-light",
+          onClick.mapTo(Page.Torrent(magnetLink.toMagnetUri, None)) --> navigateObserver,
+          span(cls := "icon", Icons.chevronLeft),
+          span("All files")
         ),
-        div(cls := "level-right",
-          div(cls := "buttons",
-            a(cls := "button is-light",
-              href := videoUrl(index),
-              target := "_blank",
-              download := fileName,
-              span(cls := "icon", Icons.download),
-              span("Download")
-            ),
-            button(cls := "button is-light",
-              cls.toggle("is-success") <-- copiedVar.signal.map(_.contains("player")),
-              onClick.mapTo(("player", videoUrl(index))) --> copyTextObserver,
-              span(cls := "icon", Icons.clipboard),
-              span(child <-- copiedVar.signal.map(c => if c.contains("player") then "Copied!" else "Copy URL"))
-            )
+        div(cls := "buttons",
+          a(cls := "button is-light",
+            href := videoUrl(index),
+            target := "_blank",
+            download := fileName,
+            span(cls := "icon", Icons.download),
+            span("Download")
+          ),
+          button(cls := "button is-light",
+            cls.toggle("is-success") <-- copiedVar.signal.map(_.contains("player")),
+            onClick.mapTo(("player", videoUrl(index))) --> copyTextObserver,
+            span(cls := "icon", Icons.clipboard),
+            span(child <-- copiedVar.signal.map(c => if c.contains("player") then "Copied!" else "Copy URL"))
           )
         )
       ),
-      h4(cls := "title is-4", fileName),
+      h4(cls := "title is-4 player-title", fileName),
       VideoPlayerComponent(fileName, videoUrl(index)),
-      navTag(cls := "level mt-4",
-        div(cls := "level-left", navButton("Previous", Icons.chevronLeft, prev)),
-        div(cls := "level-right", navButton("Next", Icons.chevronRight, next))
+      div(cls := "toolbar-row mt-4",
+        navButton("Previous", Icons.chevronLeft, prev),
+        navButton("Next", Icons.chevronRight, next)
       )
     )
 
