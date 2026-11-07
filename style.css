@@ -71,12 +71,20 @@ html[data-theme="dark"] .navbar .logo {
     border-radius: 50%;
 }
 
-/* keep connection status and theme toggle inside the header row on all screen sizes */
+/* keep connection status and theme toggle inside the header row on all screen sizes
+   (Bulma switches .navbar > .container to display:block below 1024px) */
+.navbar > .container {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
 .navbar-actions {
     margin-left: auto;
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex-shrink: 0;
 }
 
 /* always-horizontal stats row (Bulma .level stacks its items on mobile) */
