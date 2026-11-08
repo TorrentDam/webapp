@@ -1,5 +1,5 @@
 import scala.scalajs.js
-import com.github.lavrov.bittorrent.app.protocol.{Command, Event, InfoHash, Message}
+import com.github.lavrov.bittorrent.app.protocol.{InfoHash, Message}
 import org.scalajs.dom
 import org.scalajs.dom.console
 import com.raquo.laminar.api.L.*
@@ -59,7 +59,6 @@ object Main {
               case Some(magnet) =>
                 TorrentPageComponent(
                   magnet,
-                  ws.send,
                   ws.received.collect {
                     case e: Message.TorrentMetadataReceived if e.infoHash == magnet.infoHash => e
                     case e: Message.TorrentStats if e.infoHash == magnet.infoHash => e

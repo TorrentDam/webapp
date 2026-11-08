@@ -2,8 +2,8 @@ package components
 
 import org.scalajs.dom
 import com.github.lavrov.bittorrent.app.protocol.InfoHash
-import com.github.lavrov.bittorrent.app.protocol.Message.{TorrentError, TorrentMetadataReceived, TorrentStats, RequestTorrent}
-import com.github.lavrov.bittorrent.app.protocol.{Message, Event}
+import com.github.lavrov.bittorrent.app.protocol.Message.{TorrentError, TorrentMetadataReceived, TorrentStats}
+import com.github.lavrov.bittorrent.app.protocol.Message
 import com.raquo.laminar.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.{ReactiveHtmlElement, ReactiveSvgElement}
@@ -14,7 +14,6 @@ import util.{Config, InformationFormatter, MagnetLink}
 
 def TorrentPageComponent(
   magnetLink: MagnetLink,
-  send: Observer[RequestTorrent],
   events: EventStream[TorrentMetadataReceived | TorrentStats | TorrentError],
   fileIndex: Option[Int],
   metadataCache: Var[Map[InfoHash, TorrentMetadataReceived]]
@@ -301,7 +300,6 @@ end TorrentPageComponent
 
 private case class ActiveFile(name: String, src: String)
 
-private val controls = htmlProp[String, String]("controls", StringAsIsCodec)
 private val download = htmlProp[String, String]("download", StringAsIsCodec)
 private val valueAttr = htmlAttr[String]("value", StringAsIsCodec)
 private val maxAttr = htmlAttr[String]("max", StringAsIsCodec)
