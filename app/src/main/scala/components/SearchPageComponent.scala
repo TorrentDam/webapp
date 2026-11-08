@@ -6,7 +6,6 @@ import org.scalajs.dom
 import util.MagnetLink
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.scalajs.js.Promise
 
 
 def SearchPageComponent(

@@ -179,15 +179,6 @@ html[data-theme="dark"] .navbar .logo {
     word-break: break-all;
 }
 
-.navbar
-.index-refresh-icon svg {
-    animation: mover 1s infinite  alternate;
-}
-
-@keyframes mover {
-    0% { transform: translateY(-3px); }
-    100% { transform: translateY(+3px); }
-}
 .video-player {
     max-width: 100%;
     overflow: hidden;

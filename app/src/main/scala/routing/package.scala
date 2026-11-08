@@ -5,7 +5,6 @@ import com.raquo.laminar.api.{L, eventPropToProcessor}
 import com.raquo.waypoint.*
 import routing.Page
 import routing.Page.{Root, Torrent}
-import upickle.default.*
 import urldsl.errors.DummyError
 import urldsl.vocabulary.{FromString, Printer}
 import util.Config
